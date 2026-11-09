@@ -1,0 +1,17 @@
+# Tâche récurrente « ZenRay Past : avancer d'une feuille » (9 November 2026)
+
+Création refusée le 9 November 2026 par le contrôle automatique des permissions (auto mode) ; à créer par Matthieu dans les tâches planifiées de l'app, chaque jour à 10:17, dossier de travail /Users/zenray/.claude/Memory1, avec le texte ci-dessous.
+
+---
+
+Tu fais avancer le chantier ZenRay Past de Matthieu (le past.dev local de l'écosystème ZenRay) d'UNE feuille, prouvée, puis tu t'arrêtes. Tu travailles en français, au présent, sans tiret cadratin.
+
+1. Lis dans cet ordre, en entier : /Users/zenray/.claude/tmp/tmp-zenray-past/PLAN.md, /Users/zenray/.claude/tmp/tmp-zenray-past/SPEC.md, puis les 60 dernières lignes de /Users/zenray/.claude/Memory1/Projects/zenray-past/FEEDBACK.md (ses consignes priment sur le plan).
+2. Applique le skill tasks-sequence : prends la PREMIÈRE feuille « à faire » non bloquée ; si elle est trop grosse pour une seule preuve, découpe-la dans PLAN.md et fais la première sous-feuille.
+3. Le moteur vit dans /Users/zenray/Create/Build/Productions/GithubProductions/ZenRayPast (git local, node:sqlite, `npm test`) ; la base dans ~/Library/Application Support/ZenRayPast/past.db. Cherche avant d'écrire une brique ; chaque valeur réglable va dans src/config.mjs.
+4. Prouve la feuille par une observation réelle (test vert ET rouge sous mutation, compte relu, rappel mesuré, capture pour une interface). Note « fait (date) » et la preuve dans PLAN.md et une ligne dans « Journal des passes ». Commit local avec chemins explicites, jamais de push sans demande.
+5. Consigne : `node /Users/zenray/.claude/skills/progress/scripts/progress.mjs append --project zenray-past --fait "<feuille, preuve>" --prochain "<feuille suivante>"`.
+
+Interdits : pas de bascule (feuilles 18 et 19) avant la feuille 10 notée fait avec au moins 12 sur 13 et au plus 8 000 tokens par question ; aucun téléchargement sans accord écrit de Matthieu dans FEEDBACK.md ou PLAN.md ; aucun Workflow ; jamais Credentials ni la section secrets d'Identity/Matthieu1.md ; ZenRayProgress se déploie seulement depuis origin/main à jour, selon son CLAUDE.md, et jamais par-dessus le travail non commité d'une autre session. Une décision qui appartient à Matthieu s'écrit dans « Questions pour Matthieu » de PLAN.md, et l'on passe à la feuille suivante.
+
+Termine par trois lignes : la feuille faite, sa preuve, la question éventuelle pour Matthieu.
