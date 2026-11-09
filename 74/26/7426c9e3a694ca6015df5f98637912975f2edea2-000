@@ -1,0 +1,60 @@
+# ZenRay Past : spécification (9 November 2026)
+
+ZenRay Past est la mémoire temporelle de l'écosystème ZenRay. Il reprend les principes publics de past.dev (documentation lue le 9 November 2026, copie de travail dans `reference/`), mais il tourne en local, sans API payante, et il absorbe le skill `progress`. Son but est de supprimer l'amnésie entre les sessions des agents (Claude Code, Codex, Gemini, Antigravity) : rendre, sous un budget strict de tokens, les seules preuves datées qui répondent à une question.
+
+## 1. Les cinq objets
+
+| Objet | Définition | Clé |
+|---|---|---|
+| Data point | Un texte brut et complet, daté au moment où la chose s'est produite : une entrée de journal, une section datée d'un fichier Memory, un commit, une séance de conversation, une version de document. | `id` stable dérivé de la source (`progress:<stamp>`, `memory:<fichier>#<jour>`, `git:<dépôt>:<sha>`, `claude:<session>:<séance>`). Même id et même contenu : rien ne change ; contenu différent : révision qui remplace. |
+| Memory | Un énoncé court dérivé d'un data point : `observation`, `claim`, `rule`, `membership`, `identity`, `mention`, `temporal-anchor`, avec son extrait mot pour mot, sa date, son auteur et son statut (`fact`, `hypothetical`, `proposed`, `retracted`). | id dérivé du data point et du rang. |
+| Subject | Ce dont parle un `claim` ou une `rule` (« police des titres », « consulat PVT », « sources du moteur Freelance »). Deux énoncés sur le même sujet forment une chaîne de versions. | clé normalisée. |
+| Audience | Qui peut lire. Une seule personne lit aujourd'hui, mais le champ existe pour ne jamais exposer le privé (Identity, santé, conversations) à une vue publique. | `private` par défaut, `shareable`. |
+| Agent | Qui a produit le data point : `matthieu`, `claude`, `codex`, `gemini`, `antigravity`, `git`. | slug. |
+
+## 2. La résolution d'état
+
+Pour chaque sujet, l'énoncé le plus récent est la valeur actuelle ; les précédents reçoivent `supersededAt` et restent lisibles avec leur source. Trois signaux détectent une nouvelle version, du plus sûr au moins sûr :
+
+1. **Explicite** : le texte le dit (« correction de la ligne », « remplace », « passe à l'historique », « deprecated », « ne plus »).
+2. **Structurel** : même fichier, même titre de section, même propriété chiffrée, date plus récente.
+3. **Sémantique** : énoncés proches par le sens (vecteurs) sur le même sujet ; proposé, jamais appliqué sans un des deux premiers signaux ou une validation.
+
+Une date manquante ne prend jamais la date d'envoi en silence : le data point porte `dateSource` (`written`, `git`, `file-mtime`, `unknown`) et le rappel l'affiche.
+
+## 3. Le rappel
+
+`recall(query, {budgetTokens = 8000, asOf = now, from, to, sort = relevance|chronological, agent, audience})` rend une page de documents : chaque document est une memory ou un data point, avec `kind`, `content`, `occurredAt`, `supersededAt`, `dateSource` et ses sources (`id`, date, libellé, extraits). Le classement combine trois moteurs puis un tri temporel :
+
+- lexical (SQLite FTS5, BM25), pour les noms propres, chiffres et identifiants ;
+- vectoriel (embeddings locaux, cosinus), pour le sens et les reformulations ;
+- graphe temporel (liens `supersedes`, `derived-from`, `same-subject`, `same-session`), pour remonter à la valeur actuelle et à son historique ;
+- pénalité aux énoncés dépassés, sans les cacher quand la question porte sur l'historique.
+
+Le budget est strict : on admet des documents entiers jusqu'à `budgetTokens` (4 caractères par token), jamais un document tronqué. `asOf` rejoue le passé : ce que ZenRay savait à une date donnée.
+
+## 4. Les sources ingérées
+
+| Source | Découpe | Date |
+|---|---|---|
+| `~/.claude/PROGRESS.md` | une entrée = un data point | horodatage de l'entrée |
+| `Memory1/**/*1.md`, `Projects/*/Rules.md`, `FEEDBACK.md` | une section `##` par jour écrit | date écrite, sinon git |
+| `~/.claude/CLAUDE.md`, `~/.claude/rules/*.md`, `~/.claude/skills/*/SKILL.md` | une version par commit qui les modifie | date du commit |
+| Commits git (Memory1, `~/.claude`, dépôts de `GithubProductions`) | un commit | date du commit |
+| Conversations Claude Code, Codex, Gemini | une séance (30 minutes de silence) : prompts et réponses, sans sorties d'outils | premier message |
+| Pull requests GitHub | une PR | création, puis révisions |
+
+Les secrets sont retirés avant tout stockage (motifs de clés, lignes « mot de passe : »), et `Credentials/` ainsi que la section secrets d'`Identity/Matthieu1.md` ne sont jamais lus.
+
+## 5. Les surfaces
+
+- **CLI** `past` : `ingest`, `recall`, `trace`, `state <sujet>`, `status`.
+- **Serveur MCP local** `zenray-past` : `past_recall`, `past_trace`, `past_state`, `past_status`, `past_remember`, pour tous les agents.
+- **Reprise de session** : `zenray-resume-coordinator` appelle `recall` avec un budget de reprise (2 000 tokens) au lieu de relire l'historique.
+- **Vue Past** dans ZenRayProgress (ancien onglet Progress), Adobe Clean et GT Ultra pour dates et nombres : chronologie 3D interactive où chaque carte est un data point ou une memory, la ligne du temps au sol, les chaînes de versions reliées, un repère « maintenant », un sélecteur d'agent et le flux des derniers ingérés.
+
+## 6. Ce qui reste interdit
+
+- Basculer la doctrine (CLAUDE.md, skills, dépréciation de PROGRESS.md) avant que ZenRay Past batte ou égale Claude Code seul sur le banc (`/Users/zenray/.claude/tmp/tmp-memory-recall-bench-8-november-2026/`, 12 sur 13) avec au plus 8 000 tokens par question.
+- Télécharger un modèle d'embeddings sans l'accord de Matthieu (nom, source, taille).
+- Écrire dans PROGRESS.md autrement que par le skill `progress` tant que la bascule n'est pas faite.

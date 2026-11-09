@@ -1,0 +1,38 @@
+# ZenRay Past : plan séquentiel (9 November 2026)
+
+Objectif, mots de Matthieu condensés : faire de ZenRay Past le past.dev de l'écosystème ZenRay (données brutes horodatées, résolution d'état, rappel sous budget, base vectorielle et graphe temporel), afficher sa chronologie 3D dans l'onglet Past de ZenRayProgress (ex-Progress, Adobe Clean), englober le skill `progress`, améliorer `zenray-resume-coordinator`, puis en faire la source de vérité de la mémoire. Demande intégrale : `Memory1/Projects/zenray-past/FEEDBACK.md`. Spécification : `SPEC.md`.
+
+Règle de travail : une feuille à la fois, dans l'ordre, chacune prouvée avant la suivante (skill `tasks-sequence`). Une feuille ne passe à `fait` qu'avec sa preuve écrite ici. Le moteur vit dans `/Users/zenray/Create/Build/Productions/GithubProductions/ZenRayPast` (git local), la base dans `~/Library/Application Support/ZenRayPast/past.db`.
+
+| # | Feuille | Preuve exigée | État |
+|---|---|---|---|
+| 01 | Plan, spécification, feedback | ces fichiers existent, prompt intégral dans FEEDBACK.md | fait (9 November 2026) |
+| 02 | Dépôt ZenRayPast et schéma SQLite (data points, memories, subjects, liens, FTS5) | `npm test` vert ; la base se crée deux fois sans erreur | à faire |
+| 03 | Ingestion de PROGRESS.md | nombre de data points égal au nombre d'entrées compté par `src/progress/journal.js` de ZenRayProgress ; ré-ingestion = 0 changement | à faire |
+| 04 | Rappel lexical sous budget (FTS5) | une requête rend des documents entiers, sources et dates, sous 8 000 tokens | à faire |
+| 05 | Ingestion Memory1 par section datée | part de sections datées par texte, par git, sans date, affichée | à faire |
+| 06 | Ingestion des commits git | un commit = un data point ; compte égal à `git rev-list --count` | à faire |
+| 07 | Ingestion des conversations Claude Code et Codex par séance, secrets retirés | test rouge sur une fausse clé, vert après retrait | à faire |
+| 08 | Extraction des memories et des sujets (règles déterministes) | les cas 31 → 33 → 54 sources et Strasbourg → Marseille sortent comme chaînes de versions | à faire |
+| 09 | Embeddings locaux : comparer NLEmbedding d'Apple (sans téléchargement) et un modèle multilingue (téléchargement sur accord) | rappel mesuré sur le banc pour chacun | à faire |
+| 10 | Rappel hybride (lexical, vecteurs, graphe temporel, `asOf`) | banc 13 questions : au moins 12 sur 13, au plus 8 000 tokens par question | à faire |
+| 11 | CLI `past` et serveur MCP `zenray-past` | appel réel depuis une session Claude Code | à faire |
+| 12 | Ingestion continue (service launchd, incrémental) | un fichier modifié apparaît dans le rappel en moins de 5 minutes | à faire |
+| 13 | `zenray-resume-coordinator` reprend par `past_recall` | une session vierge retrouve la tâche en cours sous 2 000 tokens | à faire |
+| 14 | Export de la chronologie pour le site (données privées filtrées) | fichier d'export relu, aucune ligne secrète | à faire |
+| 15 | Onglet Progress renommé Past, Adobe Clean | capture du site local | à faire |
+| 16 | Chronologie 3D interactive (cartes cliquables, axe du temps, chaînes de versions, repère maintenant, flux ingéré) | captures et clic vérifiés dans le navigateur intégré | à faire |
+| 17 | Déploiement de ZenRayProgress depuis `origin/main` | HTTP 200 et données relues en production, revérifiées 10 minutes plus tard | à faire |
+| 18 | Bascule : CLAUDE.md pointe vers ZenRay Past ; PROGRESS.md marqué deprecated avec la date | seulement si 10 est vert ; `extract-rules.mjs --verify` vert | bloqué par 10 |
+| 19 | Bascule : skills `progress`, `zenray-resume-coordinator` et `zenray-*` reliés à ZenRay Past | grep des renvois, `sync-skill.sh` de chaque skill sans erreur | bloqué par 18 |
+| 20 | Tâche récurrente d'avancement | la tâche existe et une exécution fait avancer une feuille | à faire |
+
+## Décisions prises (9 November 2026)
+
+- Le moteur est un dépôt à part, pas un dossier de ZenRayProgress : ce dépôt est partagé par d'autres sessions et déployé en production, alors que la base contient des données privées.
+- Aucun appel payant : SQLite intégré à Node (`node:sqlite`), FTS5, vecteurs stockés en BLOB et cosinus en brute force (assez rapide sous 200 000 vecteurs).
+- Pas de hook qui injecte du texte à chaque prompt tant que le banc n'a pas prouvé son utilité : c'est exactement ce qui a rendu ZenRay Knowledge bruyant.
+
+## Journal des passes
+
+- 9 November 2026 : feuille 01 faite ; inventaire : `node:sqlite` et FTS5 disponibles, three.js 0.185 dans ZenRayProgress, aucun modèle d'embeddings local, Adobe Clean déjà déclarée dans `src/fonts.css`.
