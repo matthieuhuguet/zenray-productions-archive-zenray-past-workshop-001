@@ -9,7 +9,8 @@ import path from 'node:path'
 
 const W = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..')
 const REPO = '/Users/zenray/Create/Build/Productions/GithubProductions/ZenRayPast'
-const FONTS = '/Users/zenray/.claude/skills/zenray-edit/designs/_shared/fonts'
+// 9 November 2026: everything in Adobe Clean (Matthieu's rule of 9 November 2026), served from ZenRayProgress. / FR : tout en Adobe Clean.
+const FONTS = '/Users/zenray/Create/Build/Productions/GithubProductions/ZenRayProgress/public/fonts'
 const OUT = path.join(W, 'Articles/index.html')
 const SNAP = path.join(W, 'Articles/snapshot.json')
 const fr = (n) => Number(n).toLocaleString('fr-FR').replace(/ /g, ' ')
@@ -96,25 +97,26 @@ function html(n) {
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ZenRay Past</title>
 <style>
-@font-face { font-family: 'GT Ultra'; src: ${font('GT-Ultra-Regular.woff2')}; font-weight: 100 900; }
-@font-face { font-family: 'Literata'; src: ${font('Literata-latin.woff2')}; font-weight: 100 900; }
+@font-face { font-family: 'Adobe Clean'; src: ${font('AdobeClean-Regular.woff2')}; font-weight: 100 450; }
+@font-face { font-family: 'Adobe Clean'; src: ${font('AdobeClean-Medium.woff2')}; font-weight: 451 900; }
+:root { --font: 'Adobe Clean', -apple-system, 'Helvetica Neue', sans-serif; }
 :root { --bg: #fafaf8; --ink: #262a27; --muted: #6a726c; --line: #c9cbc4; --card: #ffffff; --hi: #d97757; }
 @media (prefers-color-scheme: dark) { :root { --bg: #161716; --ink: #ecebe6; --muted: #9a9f98; --line: #3a3d39; --card: #1f201f; } }
-html, body { margin: 0; background: var(--bg); color: var(--ink); font-synthesis: none; -webkit-font-smoothing: antialiased; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-synthesis: none; -webkit-font-smoothing: antialiased; }
 main { max-width: 1040px; margin: 0 auto; padding: 72px 16px 96px; }
-h1 { font: 400 56px/1.1 'GT Ultra', sans-serif; margin: 0 0 28px; letter-spacing: -0.01em; }
-p { font: 400 19px/1.65 'Literata', Georgia, serif; margin: 0 0 18px; }
-.num { font-family: 'GT Ultra', sans-serif; }
+h1 { font: 500 56px/1.1 var(--font); margin: 0 0 28px; letter-spacing: -0.01em; }
+p { font: 400 19px/1.65 var(--font); margin: 0 0 18px; }
+.num { font-family: var(--font); font-weight: 500; }
 figure { margin: 40px 0 0; }
 svg { width: 100%; height: auto; display: block; border-radius: 18px; background: var(--card); box-shadow: 0 0 0 1px var(--line); }
 svg .box rect { fill: var(--bg); stroke: var(--line); stroke-width: 2; }
 svg .box.hi rect { stroke: var(--hi); stroke-width: 3; }
 svg .box.off rect { stroke-dasharray: 10 8; opacity: .7; }
 svg .box.off text { fill: var(--muted); }
-svg .t { font: 400 26px 'GT Ultra', sans-serif; fill: var(--muted); }
-svg .n { font: 400 48px 'GT Ultra', sans-serif; fill: var(--ink); }
-svg .s { font: 400 22px 'Literata', serif; fill: var(--muted); }
-svg .h { font: 400 40px 'GT Ultra', sans-serif; fill: var(--ink); }
+svg .t { font: 400 26px var(--font); fill: var(--muted); }
+svg .n { font: 500 48px var(--font); fill: var(--ink); }
+svg .s { font: 400 22px var(--font); fill: var(--muted); }
+svg .h { font: 500 40px var(--font); fill: var(--ink); }
 svg .a { fill: none; stroke: var(--line); stroke-width: 3; }
 svg .mk { fill: var(--line); } svg .mk2 { fill: var(--line); }
 svg .bar { fill: var(--line); } svg .bar.hi { fill: var(--hi); }
