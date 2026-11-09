@@ -1,0 +1,154 @@
+{
+ "answers": [
+  {
+   "id": "q01",
+   "set": "A",
+   "answer": "Au consulat de sa résidence, donc à Marseille pour Aix-en-Provence, jamais à Strasbourg ; l'ancien calendrier qui prévoyait un dépôt à Strasbourg ne vaut plus pour Aix.",
+   "evidence": "#1, 2026-10-23 (aussi #54, 2026-10-23)"
+  },
+  {
+   "id": "q02",
+   "set": "A",
+   "answer": "Le moteur lit 54 sources (dont Remotive, Jobicy, Remote OK et Arbeitnow), chiffre repris le 9 November 2026 ; il remplace les 33 sources du 4 October 2026, qui corrigeaient elles-mêmes les 31 sources annoncées le même jour. Le 26 October 2026, 36 tableaux d'offres supplémentaires ont été branchés, sans total recalculé sur la page.",
+   "evidence": "#10, 2026-10-23 ; #22, 2026-11-09 ; anciens #27 et #24, 2026-10-04"
+  },
+  {
+   "id": "q03",
+   "set": "A",
+   "answer": "Houdini (FX) 22.0.368, version mesurée le 7 September 2026 par hython ; elle remplace la valeur des notes antérieures, qui disaient 20.5.",
+   "evidence": "#1, 2026-10-23 (mesure du 2026-09-07, aussi #30, 2026-09-07)"
+  },
+  {
+   "id": "q04",
+   "set": "A",
+   "answer": "Le plan d'attaque (version 3) vise un plancher de 10 000 € nets au 6 décembre 2026, avec 20 000 € visés et une dernière facture le 15 décembre ; il remplace la version 1 du même jour, qui ne visait que 4 000 à 6 000 € au 23 décembre.",
+   "evidence": "#1, 2026-09-23 ; #52, 2026-09-22 ; #13, 2026-09-23"
+  },
+  {
+   "id": "q05",
+   "set": "A",
+   "answer": "En février 2026, 13 contacts du réseau proche ont produit 7 réponses (7 sur 13, environ 54 %) et 1 client payant ; le « 40 % » parfois cité concerne les 5 messages directs du 31 janvier 2026 (2 réponses).",
+   "evidence": "#1, 2026-11-09 ; #2, 2026-10-23 ; #3, 2026-09-23"
+  },
+  {
+   "id": "q06",
+   "set": "A",
+   "answer": "Cinq séances par semaine, 45 minutes maximum le soir, peu importe l'intensité (la régularité bat l'intensité), validé sur la semaine du 18 au 24 mai 2026 ; ce rythme remplace l'ancien plan de trois séances à fond par semaine. Le plan de 12 semaines du 10 September 2026 prévoit aussi des séances à 17 h de 60 à 75 minutes, mais la page ne le présente pas comme validé.",
+   "evidence": "#1 et #5, 2026-10-23 (validation du 2026-05-18/24, #54) ; ancien plan #18, 2026-05-18 ; #57, 2026-09-10"
+  },
+  {
+   "id": "q07",
+   "set": "A",
+   "answer": "Unreal Engine 5.8, précisément 5.8.1 (moteur dans UE_5.8, plugin Houdini Engine compilé pour UE 5.8.1 le 19 September 2026) ; une mention isolée de « Unreal Engine 5.7 » dans une étape « Prochain » du 7 September 2026 n'est pas confirmée ailleurs sur la page.",
+   "evidence": "#1, 2026-08-20 ; #15, 2026-09-19 ; #46, 2026-08-07"
+  },
+  {
+   "id": "q08",
+   "set": "A",
+   "answer": "L'erreur à éviter est de parler d'Houdini pendant la phase de qualification : il faut d'abord poser les questions, moins parler technique, cacher certains skills et ne pas sur-impressionner (« un chef étoilé qui postule pour des Big Mac fait peur »).",
+   "evidence": "#16, 2026-10-30 ; #26, 2026-11-02 (règle du 30 October 2026)"
+  },
+  {
+   "id": "q09",
+   "set": "A",
+   "answer": "Nom affiché « ZenRay », identifiant @zenray.st là où le point passe (Instagram, Bluesky) et @zenrayst ailleurs (YouTube, TikTok, GitHub, X), formulation reprise le 3 November 2026 ; ces handles ont remplacé définitivement le pseudo zenrayhm et l'identifiant @mhzenray (choix du 7 September 2026).",
+   "evidence": "#4, 2026-11-03 ; #2 et #13, 2026-10-23"
+  },
+  {
+   "id": "q10",
+   "set": "A",
+   "answer": "37 kanji N4 sur 200 (37 fiches N4 en plus des 100 kanji N5), le N4 étant alors à 22 % (grammaire ~9/42, vocabulaire ~700/1500) ; ce sont des kanji enseignés, pas consolidés.",
+   "evidence": "#2, 2026-08-16 ; #4, 2026-08-16"
+  },
+  {
+   "id": "q11",
+   "set": "A",
+   "answer": "La particule d'objet を devient が : 日本語を話します devient 日本語が話せます (« je peux parler japonais »).",
+   "evidence": "#46, 2026-08-16 ; #1, 2026-09-07"
+  },
+  {
+   "id": "q12",
+   "set": "A",
+   "answer": "Environ 250 € par jour : 2 500 € pour une dizaine de jours (Mirkat Studio, novembre 2025), tarif que Matthieu reconnaît comme très bas pour un GDD ; c'est le seul tarif réellement payé, distinct des TJM cibles écrits (350 à 500 € HT).",
+   "evidence": "#2, 2026-10-23 (source du 18 April 2026, #9) ; #7, 2026-11-09"
+  },
+  {
+   "id": "q13",
+   "set": "A",
+   "answer": "INTROUVABLE",
+   "evidence": "aucune"
+  },
+  {
+   "id": "h01",
+   "set": "B",
+   "answer": "Aucune : l'échantillon « 1 film sur 8 » vaut 0 par défaut (réglable) ; la preuve par identité d'objets suffit (manifeste en ligne, noms et identifiants des parts concordants, une vraie part relue et déchiffrée) et seul un échec de cette preuve déclenche une relecture complète. Cette règle du 14 October 2026, reprise le 2 November 2026, remplace celle du 12 October 2026 qui exigeait 1 film sur 8 relu en entier.",
+   "evidence": "#3, 2026-11-02 ; #1, 2026-10-14 ; ancienne règle #21, 2026-10-12"
+  },
+  {
+   "id": "h02",
+   "set": "B",
+   "answer": "Le moteur par défaut est Claude voice_stream (harmonic-asr-8), depuis la version 3.9 du 25 October 2026 ; il remplace Gemini, ancien moteur par défaut, qui reste sélectionnable dans Settings avec Whisper et Parakeet (Whisper local sert aussi de repli si le jeton ou le serveur échoue, règle du 26 October 2026).",
+   "evidence": "#17, 2026-10-25 ; #2, 2026-10-25 ; #24, 2026-10-26"
+  },
+  {
+   "id": "h03",
+   "set": "B",
+   "answer": "Dans le skill zenray-progress : ~/.claude/skills/zenray-progress/scripts/route-method.mjs ; ce chemin corrige l'ancien emplacement zenray-assets/scripts, d'où le script a été déplacé le 14 October 2026.",
+   "evidence": "#5, 2026-10-14 ; #3, 2026-10-14 ; #10, 2026-10-14"
+  },
+  {
+   "id": "h04",
+   "set": "B",
+   "answer": "On la reproduit 1:1 en procédural à 99 % (transcription des notes, rythmes et timbres, resynthèse par la banque son) comme référence de mesure privée, jamais publiée telle quelle, puis on en dérive nos propres variations en changeant les paramètres ; cette règle remplace l'ancienne, « mesurer, jamais copier » où la musique se recomposait.",
+   "evidence": "#17, 2026-10-12 ; #21, 2026-10-12"
+  },
+  {
+   "id": "h05",
+   "set": "B",
+   "answer": "268 unités UI atomiques, après décomposition du player et du Dock en contrôles atomiques ; ce chiffre corrigé remplace le comptage initial de 246 unités du 16 July 2026.",
+   "evidence": "#2, 2026-10-23 ; #21 et #4, 2026-07-16"
+  },
+  {
+   "id": "h06",
+   "set": "B",
+   "answer": "Logic Pro, en essai gratuit de 90 jours via Apple (200 $ en achat unique si validé), avec GarageBand comme repli gratuit ; ce choix final remplace le classement intermédiaire du même jour qui plaçait DaVinci Resolve Fairlight en tête, et écarte REAPER et FL Studio.",
+   "evidence": "#14, 2026-05-26 ; #35, 2026-05-26 ; #6, 2026-05-26"
+  },
+  {
+   "id": "h07",
+   "set": "B",
+   "answer": "87 fichiers archivés (87/87, aucun en attente) lors de la vérification de restauration cloud, avec cinq fichiers restaurés aux SHA256 identiques ; le même jour, l'inventaire est ensuite monté à 88 fichiers (sauvegarde finale de 20:06), puis à 99 fichiers (21:55).",
+   "evidence": "#2, 2026-10-03 ; #3, 2026-10-03 ; #1 et #7, 2026-10-03"
+  },
+  {
+   "id": "h08",
+   "set": "B",
+   "answer": "Un score de calage de 0,99944 (64 écarts sur 113 316 points de bord, 156 îles sur 160 posées), valeur de clôture à 18 h 40 sur la version de 18 h 30, cible 0,999 atteinte ; elle remplace les valeurs antérieures du même jour, 0,315 puis 0,99911 (14 h 21), 0,99898 après correction et 0,99941 (17 h).",
+   "evidence": "#23, 2026-10-22 ; #28, 2026-10-22 ; anciens #1, #20 et #2, 2026-10-22"
+  },
+  {
+   "id": "h09",
+   "set": "B",
+   "answer": "INTROUVABLE",
+   "evidence": "aucune"
+  },
+  {
+   "id": "h10",
+   "set": "B",
+   "answer": "INTROUVABLE",
+   "evidence": "aucune"
+  },
+  {
+   "id": "h11",
+   "set": "B",
+   "answer": "La porte du porche fixée à 2,0 m (facteur 1,6393 appliqué aux paramètres bruts) sert de standard d'échelle, contrôlée avec Manny, le mannequin d'Unreal (1,805 m), qui passe désormais la porte ; avant ce standard, la porte ne mesurait que 1,22 m de haut utile et Manny avait la tête à 2,405 m.",
+   "evidence": "#2 et #10, 2026-10-09 ; #12, 2026-10-09 ; ancien état #27, 2026-10-09"
+  },
+  {
+   "id": "h12",
+   "set": "B",
+   "answer": "Un exposant de fourche de 3,14 (environ 3,1) mesuré sur l'eucalyptus réel de la planche, sur un seul arbre (n = 1), alors que la littérature (règle de Léonard) donne 1,8 à 2,3 ; une sonde directe des rayons sur la photographie indique d'ailleurs que les branches suivent plutôt un exposant de 2,0 à 2,2.",
+   "evidence": "#3, 2026-10-26 ; #4 et #15, 2026-10-26 ; #33, 2026-10-26"
+  }
+ ]
+}
