@@ -40,6 +40,13 @@ function numbers() {
 
 const font = (file) => `url(data:font/woff2;base64,${readFileSync(path.join(FONTS, file)).toString('base64')}) format('woff2')`
 
+// 9 November 2026: a compact source row, title and number only. / FR : ligne de source compacte.
+function sourceBox(x, y, w, h, title, value) {
+  return `<g class="box"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18"/>
+  <text class="t" x="${x + 24}" y="${y + 38}">${title}</text>
+  <text class="n" x="${x + 24}" y="${y + 88}">${value}</text></g>`
+}
+
 function box(x, y, w, h, title, value, sub, cls = '') {
   return `<g class="box ${cls}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18"/>
   <text class="t" x="${x + 24}" y="${y + 40}">${title}</text>
@@ -49,10 +56,14 @@ function box(x, y, w, h, title, value, sub, cls = '') {
 const arrow = (x1, y1, x2, y2, cls = '') => `<path class="a ${cls}" d="M${x1} ${y1} C ${(x1 + x2) / 2} ${y1}, ${(x1 + x2) / 2} ${y2}, ${x2} ${y2}" marker-end="url(#m${cls ? '2' : '1'})"/>`
 
 function chain({ s, vec }) {
-  const src = [['Journal', s.sources.progress], ['Notes Memory', s.sources.memory], ['Commits', s.sources.git], ['Pull requests', s.sources.pr],
-    ['Séances Claude et Codex', s.sources.conversations], ['Notes du jour du site', s.sources.notes]]
-  const left = src.map(([t, n], i) => box(60, 70 + i * 160, 400, 130, t, fr(n), '')).join('\n')
-  const arrowsIn = src.map((_, i) => arrow(460, 135 + i * 160, 600, 540)).join('\n')
+  // 9 November 2026, 17:40: eight sources (documents, rules and skills added), compact rows that fit the 1080 px height.
+  // FR : huit sources, en lignes compactes qui tiennent dans les 1080 px.
+  const src = [['Journal', s.sources.progress], ['Notes Memory', s.sources.memory], ['Règles et skills', s.sources.doctrine],
+    ['Commits', s.sources.git], ['Pull requests', s.sources.pr], ['Séances Claude et Codex', s.sources.conversations],
+    ['Notes du jour du site', s.sources.notes], ['Documents', s.sources.documents]].filter(([, n]) => n != null)
+  const ROW = { top: 70, step: 118, h: 104 }
+  const left = src.map(([t, n], i) => sourceBox(60, ROW.top + i * ROW.step, 400, ROW.h, t, fr(n))).join('\n')
+  const arrowsIn = src.map((_, i) => arrow(460, ROW.top + i * ROW.step + ROW.h / 2, 600, 540)).join('\n')
   const e5 = vec.find((v) => v.kept), ctx = vec.filter((v) => !v.kept)
   return `<svg viewBox="0 0 1920 1080" width="1920" height="1080" role="img" aria-label="Chaîne de valeur de ZenRay Past">
   <defs><marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="mk"/></marker>
@@ -70,7 +81,7 @@ function chain({ s, vec }) {
   ${box(1420, 760, 440, 170, 'Onglet Past', '3D', 'ZenRayProgress')}
   ${box(600, 860, 330, 150, 'Apple contextuel', `MRR ${dec(ctx[0].mrr)}`, 'écarté', 'off')}
   ${box(1010, 860, 330, 150, 'Apple phrases', `MRR ${dec(ctx[1].mrr)}`, 'écarté', 'off')}
-  ${box(600, 70, 330, 150, 'ZenRay Knowledge', '—', 'abandonné', 'off')}
+  ${box(600, 70, 330, 150, 'ZenRay Knowledge', '×', 'abandonné', 'off')}
   </svg>`
 }
 
@@ -123,7 +134,7 @@ svg .bar { fill: var(--line); } svg .bar.hi { fill: var(--hi); }
 </style></head><body><main>
 <h1>ZenRay Past</h1>
 <p>ZenRay Past est la mémoire de l’écosystème ZenRay. Il sert à ce qu’aucune session d’agent, qu’il s’agisse de Claude Code ou de Codex, ne recommence sans savoir ce qui a été décidé, quelle valeur a remplacé laquelle et où le travail s’est arrêté, et à ce que les notes du jour puissent être interrogées comme une base de données du passé.</p>
-<p>Il recueille sur le Mac le passé brut et daté, soit ${num(fr(s.points))} points tirés du journal, des notes de Memory, des commits, des conversations et des notes du jour du site, et il en tire ${num(fr(s.memories))} souvenirs courts reliés à leur source. Un modèle de vecteurs local et un graphe du temps distinguent la valeur actuelle de ses versions dépassées, si bien qu’une question ne reçoit que les preuves utiles, sous un budget fixe de tokens.</p>
+<p>Il recueille sur le Mac le passé brut et daté, soit ${num(fr(s.points))} points tirés du journal, des notes de Memory, des règles et des skills, des commits, des conversations et des notes du jour du site, qu’il connaît avec leur heure d’écriture environ une minute après leur enregistrement, et il en tire ${num(fr(s.memories))} souvenirs courts reliés à leur source. Un modèle de vecteurs local et un graphe du temps distinguent la valeur actuelle de ses versions dépassées, si bien qu’une question ne reçoit que les preuves utiles, sous un budget fixe de tokens.</p>
 <p>Le banc du ${num('9 novembre 2026')} l’a mesuré : un lecteur qui ne voyait que ces preuves a répondu juste à ${num(`${total} questions sur ${of}`)}, dont ${num(reader.heldout.of)} écrites à l’écart du réglage, avec environ ${num(fr(reader.meanTokensPerQuestion))} tokens par question, contre environ ${num(fr(reader.baseline.tokensPerQuestion))} pour une recherche par grep. Les agents y accèdent par un serveur MCP, et l’onglet Past de ZenRayProgress en montre la chronologie en 3D.</p>
 <figure>${chain(n)}</figure>
 <figure>${bench(n)}</figure>

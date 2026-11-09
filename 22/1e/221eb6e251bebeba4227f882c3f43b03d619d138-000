@@ -1,15 +1,17 @@
 {
- "takenAt": "2026-11-09T13:39:03.876Z",
+ "takenAt": "2026-11-09T15:10:36.522Z",
  "sources": {
-  "conversations": 2670,
-  "git": 4794,
-  "memory": 22187,
-  "notes": 67,
+  "conversations": 2685,
+  "doctrine": 2371,
+  "documents": 83,
+  "git": 4802,
+  "memory": 22248,
+  "notes": 68,
   "pr": 29,
-  "progress": 3836
+  "progress": 3846
  },
- "points": 33583,
- "memories": 176828,
- "vectors": 176828,
- "supersedes": 60
+ "points": 36132,
+ "memories": 186209,
+ "vectors": 186209,
+ "supersedes": 63
 }

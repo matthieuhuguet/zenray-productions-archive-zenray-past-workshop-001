@@ -1,6 +1,6 @@
 {
  "project": "zenray-past",
- "generatedAt": "2026-11-09T14:07:52.212Z",
+ "generatedAt": "2026-11-09T15:10:46.292Z",
  "workshop": "/Users/zenray/.claude/tmp/tmp-zenray-past",
  "repos": {
   "engine": "/Users/zenray/Create/Build/Productions/GithubProductions/ZenRayPast",
@@ -29,20 +29,20 @@
   {
    "path": "Articles/index.html",
    "role": "synthèse HTML publiée",
-   "bytes": 355641,
-   "sha256": "7e972db6f39eabf59b4c8167fd9585a98e2b6fbcd32dc438124f543d4b2ec59d"
+   "bytes": 356248,
+   "sha256": "093af2e91eba81e9bd53ac12e1226ffd25db2209ca0cefe67c97c0189b52b253"
   },
   {
    "path": "Articles/snapshot.json",
    "role": "relevé daté des chiffres de la synthèse",
-   "bytes": 243,
-   "sha256": "8551e73a2a629b0487db56652c63d63c2cc385fa5176f8e5b941a7c51901afee"
+   "bytes": 282,
+   "sha256": "4dfc5acb5da5459905e36e2bb7f8bc53b00dbe5ef0b09f4cd74fa7e1ad24d52b"
   },
   {
    "path": "Scripts/BuildSynthesis.mjs",
    "role": "générateur et vérificateur de la synthèse",
-   "bytes": 10998,
-   "sha256": "d63c43c994fd0af76148bc25c15b7ed3353cf8a794d8a36698079f51e78c682c"
+   "bytes": 11870,
+   "sha256": "e36cb68674d723106718273db8411ff2ca7205306d9a58f30a90f8c152ee004b"
   },
   {
    "path": "Scripts/BuildIndexMapping.mjs",
@@ -99,8 +99,8 @@
    {
     "path": "SKILL.md",
     "role": "skill zenray-past : méthode, appels et index de chargement à la demande",
-    "bytes": 6698,
-    "sha256": "1c7216c82fbc49608d07ed82fc951509db37c3822a2e07446078977c7b958032"
+    "bytes": 8780,
+    "sha256": "4f5cc396838970db59c29238f6083d8bc6e0b0601615c50efefa5e6c97e56c83"
    },
    {
     "path": "references/ResumeCoordinator.md",

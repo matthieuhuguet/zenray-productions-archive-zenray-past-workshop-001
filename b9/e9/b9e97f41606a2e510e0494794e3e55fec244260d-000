@@ -9,7 +9,11 @@
   {
    "at": "2026-11-09T14:07:52.212Z",
    "summary": "Skill zenray-past créé (méthode, appels, index de chargement à la demande) ; zenray-resume-coordinator deprecated et déplacé dans ses references ; IndexMapping.json couvre désormais les fichiers du skill."
+  },
+  {
+   "at": "2026-11-09T15:10:46.292Z",
+   "summary": "Synthèse mise à jour : huit sources dont la doctrine (règles et skills) et les documents, notes du jour connues en une minute avec leur heure d'écriture ; vue Notes de ZenRayProgress en Adobe Clean avec horodatage."
   }
  ],
- "sourceDigest": "ee4c6d193d9e1bbe1df3ca48b0281fc76d84491ded7baa310932383d29cbe6c7"
+ "sourceDigest": "9ef1b35418ff64c69f2a278779b1d355132849a2e394ff936922604d73a75f95"
 }
