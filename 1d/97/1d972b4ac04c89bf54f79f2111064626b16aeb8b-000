@@ -10,7 +10,7 @@ Règle de travail : une feuille à la fois, dans l'ordre, chacune prouvée avant
 | 02 | Dépôt ZenRayPast et schéma SQLite (data points, memories, subjects, liens, FTS5) | `npm test` vert ; la base se crée deux fois sans erreur | fait (9 November 2026) : 5 tests verts, 2 rouges sous mutation, commit 941048c |
 | 03 | Ingestion de PROGRESS.md | nombre de data points égal au nombre d'entrées compté par `src/progress/journal.js` de ZenRayProgress ; ré-ingestion = 0 changement | fait (9 November 2026) : 3 827 data points = 3 827 entrées, ids uniques, 0 vide, ré-ingestion 3 827 inchangés, 0,5 s |
 | 04 | Rappel lexical sous budget (FTS5) | une requête rend des documents entiers, sources et dates, sous 8 000 tokens | fait (9 November 2026) : test de budget et d'asOf ; « consulat PVT » rend 9 documents entiers en 2 758 tokens sur 3 000 |
-| 05 | Ingestion Memory1 par section datée | part de sections datées par texte, par git, sans date, affichée | à faire |
+| 05 | Ingestion Memory1 par section datée | part de sections datées par texte, par git, sans date, affichée | fait (9 November 2026) : 690 fichiers, 21 989 data points (14 269 datés par le texte, 7 395 par git, 325 par la date du fichier), 2e passe 690 fichiers sautés en 0,14 s ; fuite trouvée et corrigée (code du drive dans 4 entrées du journal) : 0 occurrence dans les octets bruts après VACUUM ; base en 600 ; commit b808fc9 |
 | 06 | Ingestion des commits git | un commit = un data point ; compte égal à `git rev-list --count` | à faire |
 | 07 | Ingestion des conversations Claude Code et Codex par séance, secrets retirés | test rouge sur une fausse clé, vert après retrait | à faire |
 | 08 | Extraction des memories et des sujets (règles déterministes) | les cas 31 → 33 → 54 sources et Strasbourg → Marseille sortent comme chaînes de versions | à faire |
@@ -53,3 +53,4 @@ Règle de travail : une feuille à la fois, dans l'ordre, chacune prouvée avant
 
 - 9 November 2026 : feuille 01 faite ; inventaire : `node:sqlite` et FTS5 disponibles, three.js 0.185 dans ZenRayProgress, aucun modèle d'embeddings local, Adobe Clean déjà déclarée dans `src/fonts.css`.
 - 9 November 2026 : feuilles 02, 03 et 04 faites dans la même session (dépôt ZenRayPast, schéma, révisions, ingestion de PROGRESS.md, rappel lexical sous budget) ; feuille 20 bloquée par le contrôle des permissions.
+- 9 November 2026 : feuille 05 faite ; le contrôle des secrets a trouvé le code du drive dans 4 entrées de PROGRESS.md, filtrage étendu au journal, empreinte de valeur connue, base purgée.
