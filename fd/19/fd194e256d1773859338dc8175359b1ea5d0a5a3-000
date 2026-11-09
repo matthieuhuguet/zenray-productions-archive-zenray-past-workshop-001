@@ -1,0 +1,169 @@
+{
+  "created": "9 November 2026",
+  "questions": [
+    {
+      "id": "h01",
+      "kind": "superseded",
+      "q": "Dans ZenRayProgress, avant de décharger l'original d'un film, quelle part des films doit encore être relue en entier depuis GitHub pour la preuve ?",
+      "expected": "Aucune : depuis le 14 October 2026 l'échantillon de relecture complète vaut 0 par défaut et le worker utilise la preuve par identité d'objets (ZR_VERIFY_MODE=identity). La règle du 12 October 2026 prévoyait 1 film sur 8 relu en entier.",
+      "sources": [
+        "Projects/zenray-progress/Rules.md:15",
+        "Projects/zenray-progress/Rules.md:12"
+      ],
+      "mustContain": [
+        "ZR_VERIFY_MODE=identity",
+        "valeur 0 par défaut"
+      ],
+      "oldValue": "1 film sur 8 relu en entier"
+    },
+    {
+      "id": "h02",
+      "kind": "superseded",
+      "q": "Quel est le moteur de dictée par défaut de ZenRay Dictate ?",
+      "expected": "Le point d'accès de dictée de Claude, voice_stream (modèle harmonic-asr-8), par défaut depuis le 25 et 26 October 2026 ; Gemini, Whisper et Parakeet restent sélectionnables. Au départ (3 October 2026), l'application passait par le site gemini.google.com dans une WKWebView.",
+      "sources": [
+        "Projects/zenray-dictate/Rules.md:5",
+        "Projects/zenray-dictate/Project1.md:117",
+        "Projects/zenray-dictate/Project1.md:9"
+      ],
+      "mustContain": [
+        "harmonic-asr-8",
+        "voice_stream"
+      ],
+      "oldValue": "gemini.google.com in an app-owned WKWebView session"
+    },
+    {
+      "id": "h03",
+      "kind": "superseded",
+      "q": "Dans quel dossier de skill vit le script route-method.mjs qui choisit la méthode (Create ou Assets) à partir d'une phrase de Matthieu ?",
+      "expected": "Dans ~/.claude/skills/zenray-progress/scripts/, d'après la correction du 14 October 2026 ; la règle « une phrase = une méthode » citait d'abord l'ancien chemin ~/.claude/skills/zenray-assets/scripts/.",
+      "sources": [
+        "Projects/zenray-progress/Rules.md:22",
+        "Projects/zenray-progress/Rules.md:17"
+      ],
+      "mustContain": [
+        "~/.claude/skills/zenray-progress/scripts/"
+      ],
+      "oldValue": "~/.claude/skills/zenray-assets/scripts/route-method.mjs"
+    },
+    {
+      "id": "h04",
+      "kind": "superseded",
+      "q": "Dans ZenRay Motion Design, que fait-on de la musique d'une vidéo de référence qu'on reproduit ?",
+      "expected": "Elle est reproduite 1:1 en procédural (notes, rythmes, timbres resynthétisés par la banque son) avec la cible de 99 %, comme référence de mesure privée, puis les variations publiables en dérivent. Cela remplace la règle initiale du 12 October 2026 selon laquelle la musique se recompose.",
+      "sources": [
+        "Projects/zenray-motion-design/Rules.md:23",
+        "Projects/zenray-motion-design/Rules.md:24",
+        "Projects/zenray-motion-design/Rules.md:15"
+      ],
+      "mustContain": [
+        "reproduite 1:1 en procédural",
+        "99 %"
+      ],
+      "oldValue": "la musique se recompose"
+    },
+    {
+      "id": "h05",
+      "kind": "superseded",
+      "q": "Combien d'unités UI compte l'inventaire de la capture Spotify desktop décortiquée comme référence pour ZenRayProgress ?",
+      "expected": "268 unités, selon la correction du comptage du 2026-07-16 (après décomposition du player et du Dock) ; la première entrée annonçait 246 unités.",
+      "sources": [
+        "Design/Design1.md:582",
+        "Design/Design1.md:553"
+      ],
+      "mustContain": [
+        "268 unités"
+      ],
+      "oldValue": "246 unités UI"
+    },
+    {
+      "id": "h06",
+      "kind": "superseded",
+      "q": "Quel logiciel de musique (DAW) a finalement été retenu pour démarrer la direction artistique musicale de Matthieu en mai 2026 ?",
+      "expected": "Logic Pro, en essai gratuit de 90 jours (GarageBand en repli), licence à 200 $ en achat unique ; un premier recadrage avait désigné REAPER comme seul DAW pilotable par Claude.",
+      "sources": [
+        "AudioProductions/Audio1.md:52",
+        "AudioProductions/Audio1.md:105",
+        "AudioProductions/Audio1.md:22"
+      ],
+      "mustContain": [
+        "Logic Pro essai 90 jours"
+      ],
+      "oldValue": "REAPER seul DAW pro pilotable Claude à 100% via ReaScript"
+    },
+    {
+      "id": "h07",
+      "kind": "dated",
+      "q": "Lors de la vérification de restauration cloud de ZenRay Dictate du 3 October 2026, combien de fichiers étaient archivés ?",
+      "expected": "87 fichiers archivés, zéro en attente, répartis sur cinq sources mappées (les mesures suivantes du 4 October 2026 montent à 110, 112 puis 126).",
+      "sources": [
+        "Projects/zenray-dictate/Project1.md:20"
+      ],
+      "mustContain": [
+        "87 archived files"
+      ],
+      "oldValue": null
+    },
+    {
+      "id": "h08",
+      "kind": "dated",
+      "q": "Au 22 October 2026, quel score de calage 2D par île ZenRay UV atteignait-il sur l'arche à 512 px/m ?",
+      "expected": "0,99944 (parti de 0,315), avec 156 îles sur 160 posées ; 0,999 vaut « terminé » pour ce score.",
+      "sources": [
+        "Projects/zenray-uv/Project1.md:66",
+        "Projects/zenray-uv/Project1.md:208"
+      ],
+      "mustContain": [
+        "0,99944"
+      ],
+      "oldValue": null
+    },
+    {
+      "id": "h09",
+      "kind": "trap",
+      "q": "Combien d'étoiles GitHub compte le dépôt ZenRayProgress ?",
+      "expected": "L'information est absente de Memory1 : aucun nombre d'étoiles GitHub n'y est consigné pour ce dépôt.",
+      "sources": [],
+      "mustContain": [],
+      "oldValue": null
+    },
+    {
+      "id": "h10",
+      "kind": "trap",
+      "q": "Quelle note Metacritic ZenRayShards a-t-il obtenue à sa sortie ?",
+      "expected": "L'information est absente : le jeu n'est pas sorti et Memory1 ne consigne que l'ambition d'un jeu au-dessus de 90 sur Metacritic, jamais une note obtenue.",
+      "sources": [],
+      "mustContain": [],
+      "oldValue": null
+    },
+    {
+      "id": "h11",
+      "kind": "buried",
+      "q": "Dans Louisiana Bayou, quelle hauteur de porte sert de standard d'échelle et avec quel personnage la mise à l'échelle a-t-elle été contrôlée ?",
+      "expected": "La porte du porche à 2,0 m (facteur 1,6393 appliqué aux paramètres bruts), contrôlée avec Manny de 1,805 m, le 9 October 2026.",
+      "sources": [
+        "Projects/louisiana-bayou/Project1.md:73"
+      ],
+      "mustContain": [
+        "porte du porche à 2,0 m",
+        "1,805 m"
+      ],
+      "oldValue": null
+    },
+    {
+      "id": "h12",
+      "kind": "buried",
+      "q": "Quel exposant de fourche a été mesuré sur l'eucalyptus réel de la planche dans le dataset des guides 3D d'arbres, et que donne la littérature ?",
+      "expected": "3,14 (mesure du 26 October 2026) ; la littérature donne 1,8 à 2,3, donc les rayons mesurés sont trop fins pour le parent.",
+      "sources": [
+        "Trees/Trees1.md:30",
+        "Trees/Trees1.md:49"
+      ],
+      "mustContain": [
+        "3.14",
+        "1,8 à 2,3"
+      ],
+      "oldValue": null
+    }
+  ]
+}
