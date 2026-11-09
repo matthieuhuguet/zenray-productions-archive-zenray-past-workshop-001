@@ -1,0 +1,172 @@
+# Cloud Bridge : les gestes à faire sur le Mac (3 November 2026)
+
+Le chantier a été mené dans une session cloud, sur la branche `cloud/bridge-3-november-2026`, avec une
+PR que rien n'a fusionnée ni déployée. Voici, dans l'ordre, ce qui reste à faire sur le Mac. Chaque
+étape dit ce qu'on doit voir si tout va bien, pour qu'aucune ne se conclue sur une impression.
+
+Dépôt local : `/Users/zenray/Create/Build/Productions/GithubProductions/ZenRayProgress`, appelé plus bas
+« le dépôt ». Architecture et raisons : [CLOUD-BRIDGE.md](CLOUD-BRIDGE.md).
+
+## 1. Relire et fusionner la PR (décision de Matthieu)
+
+Rien ne part tant que la PR n'est pas fusionnée dans `main`. Une fois fusionnée :
+
+```bash
+cd /Users/zenray/Create/Build/Productions/GithubProductions/ZenRayProgress && git switch main && git pull --ff-only origin main
+```
+
+Pour essayer avant de fusionner, sans toucher à `main` :
+
+```bash
+cd /Users/zenray/Create/Build/Productions/GithubProductions/ZenRayProgress && git fetch origin cloud/bridge-3-november-2026 && git worktree add ../ZenRayProgress-bridge origin/cloud/bridge-3-november-2026
+```
+
+## 2. L'autotest, sur le Mac
+
+```bash
+cd /Users/zenray/Create/Build/Productions/GithubProductions/ZenRayProgress && node scripts/CloudBridge/Bridge.mjs selftest
+```
+
+Attendu : quatorze lignes `vert`, puis `selftest VERT : 14 contrôles`, code de sortie 0. Le test joue
+tout le cycle sur un dépôt jetable, sans réseau ni jeton, et vérifie que quatre cas trafiqués rougissent.
+
+## 3. Le premier index du site
+
+```bash
+cd /Users/zenray/Create/Build/Productions/GithubProductions/ZenRayProgress && node scripts/CloudBridge/Bridge.mjs index
+```
+
+Attendu : `Handoffs : 6 (6 vérifiés, 0 en rouge)` (mesuré dans la VM le 3 November 2026 sur les six
+handoffs de Memory), puis la liste des branches non fusionnées : `research/retopo-cloud`,
+`research/car-cloud`, `uv-article/cloud` et les branches `claude/…` des autres sessions, toutes « sans
+reçu ». Le fichier `Projects/zenray-progress/cloud-bridge/Index.json` est commité et poussé seul dans
+Memory. Code de sortie 0.
+
+## 4. Mettre à jour le skill `zenray-cloud-handoff`
+
+Remplacer tout le contenu de `/Users/zenray/.claude/skills/zenray-cloud-handoff/SKILL.md` par le texte
+ci-dessous. `scripts/Handoff.py` reste en place, intact.
+
+````markdown
+---
+name: zenray-cloud-handoff
+description: "Donner des fichiers locaux à une session Claude cloud et rapatrier son travail sur le Mac : le Cloud Bridge (3 November 2026). Mac : Bridge.mjs send (petits fichiers copiés dans le dépôt Memory, gros fichiers par le drive Create en morceaux anonymes, preuve par blobs, index du site). VM : Bridge.mjs fetch puis return (reçu RETURN.json sur une branche). Mac : Bridge.mjs pull (revérifie chaque empreinte, n'écrase rien). Utiliser quand Matthieu dit « donne ces fichiers à un agent cloud », « handoff cloud », « pointeurs pour le cloud », « bridge », « rapatrie ce que le cloud a fait », avant de lancer une session cloud qui doit lire des fichiers locaux, ou pour reprendre son résultat (30 October 2026, 3 November 2026)."
+---
+
+# ZenRay Cloud Handoff, devenu le Cloud Bridge (3 November 2026)
+
+- 3 November 2026 : le moteur du pont vit dans le dépôt ZenRayProgress, `scripts/CloudBridge/Bridge.mjs`, lancé depuis `/Users/zenray/Create/Build/Productions/GithubProductions/ZenRayProgress`. Doctrine : `docs/CLOUD-BRIDGE.md` du dépôt. Réglages : `src/config/cloudBridge.js`, seul fichier de paramètres ; un paramètre absent lève une erreur qui le nomme. (3 November 2026)
+- 3 November 2026 : envoyer, sur le Mac : `node scripts/CloudBridge/Bridge.mjs send --project <id> --name <nom> --path <fichier ou dossier> [--path ...]`. Jusqu'à 20 Mo, copie dans `Memory/Projects/<id>/handoff/<nom>/files/`. Au-delà, drive Create : archive `--no-stream` (jamais les rails chiffrés, dont la clé ne doit pas entrer dans une VM), dépôt public au nom neutre `bridge-<empreinte>`, manifeste relu au commit exact, comparé au sha256 local, recopié dans `handoff/<nom>/drive/`. Push du seul dossier, ajout forcé contre le `.gitignore` de Memory, preuve par blobs, index régénéré, brief de la session cloud imprimé à la fin. Code 0 seulement si tout est prouvé, 2 si un fichier est resté sur le Mac, 1 sinon. (3 November 2026)
+- 3 November 2026 : dans la VM, après clone de Memory et clone partiel du site (`scripts/CloudBridge`, `src/config`, `src/lib`) : `node scripts/CloudBridge/Bridge.mjs fetch --project <id> --name <nom>` matérialise et vérifie tout dans `/home/user/bridge/<id>/<nom>/`, gros fichiers recollés depuis les morceaux publics, sans jeton. Puis `node scripts/CloudBridge/Bridge.mjs return --project <id> --name <nom> --path <sortie> [--branch <b>]` pousse le résultat et son reçu `RETURN.json` sur `cloud/<id>/<nom>`, ou sur la branche que la session impose. Plafond de 400 Mo par retour, refus visible au-delà. (3 November 2026)
+- 3 November 2026 : rapatrier, sur le Mac : `node scripts/CloudBridge/Bridge.mjs pull --branch <b>`, dans `~/Downloads/CloudBridge/<id>/<nom>/<tête>/`, chaque fichier comparé à son sha256 ; un fichier déjà présent avec un autre contenu est refusé, jamais écrasé. Une branche sans reçu (ancien modèle, comme `research/retopo-cloud`) se rapatrie avec `--folder <dossier>` et se prouve par ses blobs. (3 November 2026)
+- 3 November 2026 : état : `node scripts/CloudBridge/Bridge.mjs status`, ou la vue Cloud Bridge de la sidebar du site, qui lit `Memory/Projects/zenray-progress/cloud-bridge/Index.json` en une requête hors quota. `index` le régénère et le pousse ; `send` et `pull` le font aussi. Autotest : `node scripts/CloudBridge/Bridge.mjs selftest`, quatorze contrôles, verts sur les bons cas et rouges sur les cas trafiqués. (3 November 2026)
+- 3 November 2026 : règles : jamais de secret ni de clé dans un handoff ou un retour ; le jeton GitHub ne sert qu'au drive, sur le Mac, lu à la volée et jamais écrit ; seuls les chemins du handoff sont commités, jamais `git add -A` sur l'arbre ; rien n'est supprimé automatiquement, ni branche, ni étape, ni handoff. (3 November 2026)
+- 3 November 2026 : `scripts/Handoff.py` reste pour l'historique et produit le même format, que `Bridge.mjs` relit sans conversion. Ses trois trous, doublons dans le manifeste, fichiers avalés en silence par le `.gitignore` de Memory, `pull` sans vérification, sont corrigés dans `Bridge.mjs`, qui le remplace pour tout nouvel envoi. Ne pas le supprimer sans décision de Matthieu. (3 November 2026)
+
+## Historique (30 October 2026, conservé tel quel)
+
+- 30 October 2026 : une session cloud lit le dépôt `matthieuhuguet/Memory` (déjà sur GitHub, privé). Tout fichier de moins de 20 Mo peut donc lui être donné en pointeur sans nouvelle infrastructure. Les fichiers plus gros sont listés `pointer-only` avec le projet Assets qui les porte (route des shards, à décider plus tard : elle exige un accès en lecture aux archives chiffrées, donc une décision de Matthieu sur les secrets). (30 October 2026)
+- 30 October 2026 : commandes (Python 3 standard, aucune dépendance) : `python3 /Users/zenray/.claude/skills/zenray-cloud-handoff/scripts/Handoff.py stage --project <id> --name <nom> --path <fichier ou dossier> [--path ...] [--max-mb 20]`, puis `push`, puis `verify` (code de sortie 1 si un fichier distant diffère). `pull --branch <branche> --folder <dossier> --dest <dir>` : récupère ce que la session cloud a écrit sur sa branche, sans toucher à l arbre de travail ; `selftest` : vert sur un cas juste, rouge sur un fichier trafiqué (dépôt bare local jetable). (30 October 2026)
+- 30 October 2026 : règles : jamais de secret ni de clé dans un handoff (le mot de passe du drive, les jetons) ; seuls les chemins du dossier `handoff/<nom>` sont ajoutés au commit (jamais `git add -A`) ; le brief de la session cloud nomme le dossier `Projects/<id>/handoff/<nom>/` et son `INDEX.md` ; le retour du cloud passe par une branche (`CloudBridge.sh` du skill `zenray-meshes` en est le modèle). (30 October 2026)
+- 30 October 2026 : exemples : article ZenRay UV (`zenray-uv`, `uv-article`). Preuve de création : selftest vert le 30 October 2026. (30 October 2026)
+````
+
+## 5. Mettre à jour le skill `zenray-progress`
+
+Dans `/Users/zenray/.claude/skills/zenray-progress/SKILL.md`, deux ajouts.
+
+**a. Une ligne** à la fin du tableau « Ne pas confondre avec zenray-assets », juste après la ligne qui
+commence par `| Charger, décharger, restaurer une copie locale` :
+
+```markdown
+| Donner des fichiers du Mac à une session Claude cloud, rapatrier son travail, la vue Cloud Bridge (3 November 2026) | `zenray-cloud-handoff` pour le geste, `zenray-progress` pour le code | le moteur `scripts/CloudBridge/Bridge.mjs` et la vue vivent dans ce dépôt |
+```
+
+**b. Une section**, juste avant `## Références (14 October 2026)` :
+
+```markdown
+## Cloud Bridge (3 November 2026)
+
+- 3 November 2026 : la sidebar du site a une entrée Cloud Bridge, juste sous Progress (`src/components/CloudBridgeView.jsx`). Elle montre les trois gestes, envoyer, laisser travailler le cloud, rapatrier, chacun avec sa commande exacte, puis les retours à rapatrier et les handoffs envoyés avec leur état prouvé. (3 November 2026)
+- 3 November 2026 : la vue lit un seul fichier, `Memory/Projects/zenray-progress/cloud-bridge/Index.json`, par `urlLectureAffichage` (hors quota) ; jamais de boucle d'appels à l'API GitHub, jamais de sondage quand l'onglet est caché. L'index est écrit par `node scripts/CloudBridge/Bridge.mjs index` sur le Mac, et par chaque `send` et `pull`. (3 November 2026)
+- 3 November 2026 : tout réglage du pont vit dans `src/config/cloudBridge.js` et nulle part ailleurs ; la logique partagée par le moteur et la vue vit dans `src/lib/cloudBridge.js`, si bien qu'une commande affichée dans la sidebar est littéralement celle que le moteur attend. (3 November 2026)
+- 3 November 2026 : preuves : `node scripts/CloudBridge/Bridge.mjs selftest` et `npx vitest run src/lib/cloudBridge.test.js src/components/CloudBridgeView.test.jsx scripts/CloudBridge/Bridge.test.js`. Doctrine : `docs/CLOUD-BRIDGE.md`. (3 November 2026)
+```
+
+**c. La règle épinglée du projet**, par l'outil prévu (jamais à la main) :
+
+```bash
+python3 ~/.claude/skills/zenray-feedback/scripts/feedback.py add zenray-progress "3 November 2026 : un fichier donné à une session cloud ou rapatrié depuis elle passe par scripts/CloudBridge/Bridge.mjs (send, fetch, return, pull) et n'est déclaré arrivé que lorsque son empreinte a été recalculée à l'autre bout ; jamais de secret dans un handoff ni dans un retour." --kind rule
+```
+
+## 6. Le premier vrai aller-retour
+
+Un petit dossier suffit, par exemple les notes d'un projet :
+
+```bash
+cd /Users/zenray/Create/Build/Productions/GithubProductions/ZenRayProgress && node scripts/CloudBridge/Bridge.mjs send --project zenray-progress --name essai-bridge-3-November-2026 --path /Users/zenray/.claude/Memory1/Projects/zenray-progress/Rules.md
+```
+
+Attendu : `VÉRIFIÉ : 1 fichier(s) identique(s) en ligne`, puis le brief à coller dans une nouvelle
+session cloud. Quand la session a rendu son travail :
+
+```bash
+cd /Users/zenray/Create/Build/Productions/GithubProductions/ZenRayProgress && node scripts/CloudBridge/Bridge.mjs pull --branch cloud/zenray-progress/essai-bridge-3-November-2026
+```
+
+Attendu : `VÉRIFIÉ : N fichier(s) dans /Users/zenray/Downloads/CloudBridge/zenray-progress/essai-bridge-3-November-2026/<tête>`.
+
+Les retours d'avant le pont se rapatrient de la même façon, preuve par les blobs :
+
+```bash
+cd /Users/zenray/Create/Build/Productions/GithubProductions/ZenRayProgress && node scripts/CloudBridge/Bridge.mjs pull --branch research/retopo-cloud --folder Projects/zenray-meshes/research-dataset
+```
+
+## 7. Déployer (seulement quand Matthieu le décide)
+
+Depuis un arbre propre d'`origin/main` contenant la fusion :
+
+```bash
+cd /Users/zenray/Create/Build/Productions/GithubProductions/ZenRayProgress && npx vite build && npx wrangler pages functions build --outdir=/tmp/zr-fn && npx wrangler pages deploy
+```
+
+Le paquet servi doit être celui qu'on vient de construire :
+
+```bash
+diff <(grep -o 'assets/index-[A-Za-z0-9_-]*\.js' dist/index.html | head -1) <(curl -s https://zenray-progress.pages.dev | grep -o 'assets/index-[A-Za-z0-9_-]*\.js' | head -1)
+```
+
+Attendu : aucune sortie. Puis, dans le navigateur de Matthieu, sur https://zenray-progress.pages.dev,
+l'entrée **Cloud Bridge** apparaît sous Progress ; la vue affiche « Index il y a … », six handoffs avec
+la pastille « Vérifié », et les branches sans reçu repliées. La lecture de l'index se contrôle aussi
+sans navigateur, le code du drive étant tapé dans la variable `ZR_CODE` de son propre terminal :
+
+```bash
+curl -s -H "x-zr-auth: $ZR_CODE" "https://zenray-progress.pages.dev/api/page?action=read&raw=1&path=Memory%2FProjects%2Fzenray-progress%2Fcloud-bridge%2FIndex.json" | head -c 160
+```
+
+Attendu : un JSON qui commence par `{"markdown":"{\n \"kind\": \"zenray-cloud-bridge-index\"`.
+
+## 8. Roadmap et journal, après le déploiement
+
+Passer la carte C220 à `done` dans la Roadmap de l'application (`build/tasks.json` du dépôt
+`zenray-content`) et dans `PLAN.md`, puis consigner la session dans `~/.claude/PROGRESS.md` par le skill
+`progress`, comme le prévoient les instructions de la session locale.
+
+```bash
+gh api repos/matthieuhuguet/zenray-content/contents/build/tasks.json --jq '.content' | base64 --decode > /tmp/zr-tasks.json && node -e "const f='/tmp/zr-tasks.json',fs=require('fs'),j=JSON.parse(fs.readFileSync(f,'utf8'));j.items=(j.items||[]).filter(i=>i.id!=='cloud-bridge');j.items.push({id:'cloud-bridge',title:'C220: Cloud Bridge, envoyer au cloud, laisser travailler, rapatrier, vue dans la sidebar (3 November 2026)',status:'done',section:'UI & vues (chantier actuel)'});j.updatedAt=new Date().toISOString();fs.writeFileSync(f,JSON.stringify(j,null,2))"
+```
+
+```bash
+SHA=$(gh api repos/matthieuhuguet/zenray-content/contents/build/tasks.json --jq '.sha') && gh api -X PUT repos/matthieuhuguet/zenray-content/contents/build/tasks.json -f message="Roadmap : Cloud Bridge" -f content="$(base64 -i /tmp/zr-tasks.json)" -f sha="$SHA"
+```
+
+## Si quelque chose rougit
+
+| Message | Cause | Geste |
+|---|---|---|
+| `jeton GitHub introuvable` | `gh` n'est pas connecté | `gh auth login`, puis relancer `send` |
+| `drive : le manifeste ne décrit pas ce fichier` | le fichier a changé pendant l'archive, ou le drive porte une autre version | relancer `send` ; la ligne repasse en `drive` si les empreintes concordent |
+| `existe déjà avec un autre contenu, rien n'est écrasé` | un rapatriement précédent est déjà dans le dossier | choisir un autre `--dest`, ou déplacer l'ancien dossier |
+| `retour de N Mo, au-delà du plafond` | un retour dépasse `return.maxTotalMb` | réduire le retour ; relever le plafond se décide dans `src/config/cloudBridge.js` |
+| `Pas encore d'état à montrer` dans la vue | l'index n'a jamais été généré | étape 3 |

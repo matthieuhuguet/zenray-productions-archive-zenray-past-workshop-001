@@ -1,0 +1,188 @@
+# Cloud Bridge (3 November 2026)
+
+Le pont entre le Mac de Matthieu et une session Claude cloud. Le Mac donne des fichiers, la machine
+virtuelle travaille dessus dans son propre environnement, puis le Mac reprend le résultat. Toute la
+mécanique tient dans une idée : **un fichier n'est jamais déclaré arrivé tant que son empreinte n'a
+pas été recalculée à l'autre bout.** Comme un colis qu'on pèse au départ et à l'arrivée, sauf que la
+balance mesure chaque octet.
+
+![Architecture du Cloud Bridge](cloud-bridge/architecture.svg)
+
+| Où | Commande | Ce qui est prouvé |
+|---|---|---|
+| Mac | `node scripts/CloudBridge/Bridge.mjs send --project P --name N --path X` | chaque fichier copié a le même blob git sur `main` ; chaque gros fichier a le même sha256 dans le drive |
+| VM | `node scripts/CloudBridge/Bridge.mjs fetch --project P --name N` | chaque fichier matérialisé a le sha256 du manifeste, gros fichiers recollés compris |
+| VM | `node scripts/CloudBridge/Bridge.mjs return --project P --name N --path OUT` | le reçu `RETURN.json` porte octets, sha256 et blob de chaque part |
+| Mac | `node scripts/CloudBridge/Bridge.mjs pull --branch B` | chaque fichier recollé a le sha256 du reçu ; rien d'existant n'est écrasé |
+| Mac | `node scripts/CloudBridge/Bridge.mjs index` | l'état complet, recalculé depuis Git, poussé pour la sidebar |
+| partout | `node scripts/CloudBridge/Bridge.mjs selftest` | quatorze contrôles, dont quatre cas trafiqués qui doivent rougir |
+
+Codes de sortie : `0` tout livré et prouvé, `1` échec, `2` livré en partie (un fichier resté sur le
+Mac). Chaque commande accepte `--json`.
+
+## Ce qui existait avant ce chantier
+
+La passerelle marchait déjà, et ce document part d'elle plutôt que de la remplacer.
+
+- **`Handoff.py`** (skill `zenray-cloud-handoff`, 30 October 2026) copie les fichiers de 20 Mo au plus
+  dans `matthieuhuguet/Memory`, sous `Projects/<id>/handoff/<nom>/files/`, écrit `MANIFEST.json` (clé,
+  source locale, octets, sha256, blob git, liens GitHub) et `INDEX.md`, pousse ce seul dossier, puis
+  `verify` compare les blobs avec `git ls-tree` de `origin/main`. Au-delà de 20 Mo : `pointer-only`.
+- **`CloudBridge.sh`** (skill `zenray-meshes`) lit la branche `research/retopo-cloud` et copie dans
+  l'atelier ce qu'elle ajoute sous `Projects/zenray-meshes/research-dataset/`, sans toucher l'arbre de
+  travail de Memory1.
+- **Six handoffs** sont en ligne au 3 November 2026 (`zenray-meshes` ×2, `zenray-progress`,
+  `zenray-uv`, `zorah-materials` ×2), et trois branches de retour à l'ancienne (`research/retopo-cloud`,
+  `research/car-cloud`, `uv-article/cloud`). Le nouveau moteur relit les six sans conversion : tous
+  ressortent **vérifiés** blob par blob, et les 47 fichiers de `uv-article` se matérialisent avec leur
+  sha256 exact.
+
+## Ses trous, chacun constaté
+
+1. **Les doublons.** Donner deux fois le même chemin écrit deux lignes : le manifeste de
+   `cloud-bridge-3-November-2026` en porte huit pour six fichiers. Pire, deux fichiers *différents*
+   sous la même clé s'écraseraient dans `files/` sans un mot. Désormais compté une fois, ou refusé.
+2. **Le `.gitignore` de Memory avale des fichiers.** Il écarte `*.zip`, `*.bin`, `*.ts`, `*.mp4`, et
+   `git add -- <dossier>` saute un fichier ignoré **en silence**. Un handoff de code TypeScript partait
+   donc amputé ; seul `verify` le rattrapait, après coup. L'autotest le démontre : sans `git add -f`,
+   le contrôle rougit à 2 fichiers sur 3.
+3. **Au-delà de 20 Mo, une impasse.** `pointer-only` désignait un fichier sans aucun chemin pour
+   l'atteindre depuis la VM.
+4. **Un retour sans reçu.** La VM poussait une branche ; le Mac ne pouvait vérifier que des blobs,
+   jamais ce que la VM avait *voulu* rendre. Et les sessions cloud poussent souvent sur une branche
+   `claude/<aléa>` : `research/car-cloud` et `claude/bold-brahmagupta-aq3dr9` pointent le même commit.
+   Sans reçu, rien ne relie une branche à son handoff.
+5. **`CloudBridge.sh` est câblé sur une branche et un dossier.** Il casse sur un nom avec espace
+   (`for f in $(…)`), rend `0` quand la branche n'existe pas, ignore sans le dire un fichier supprimé
+   sur la branche, et écrase la copie précédente.
+6. **`Handoff.py pull`** extrait l'archive sans revérifier un seul octet et écrase ce qui existe.
+7. **Aucun état lisible.** Rien ne disait quelles branches attendaient d'être rapatriées, ni quels
+   handoffs étaient vérifiés : la preuve de `verify` restait dans le terminal.
+
+## La cible, livrée par ce chantier
+
+### Les pièces
+
+| Fichier | Rôle |
+|---|---|
+| `src/config/cloudBridge.js` | **le seul fichier de paramètres** (loi HDA) ; `bp('nom')` lève une erreur qui nomme un paramètre absent |
+| `src/lib/cloudBridge.js` | logique pure, partagée par le moteur et la vue : chemins, routes, preuve par blobs, lecture stricte de l'index, texte exact des commandes |
+| `scripts/CloudBridge/Bridge.mjs` | le CLI, aucune dépendance au-delà de Node et Git |
+| `scripts/CloudBridge/lib/bridgeOps.mjs` | les opérations : stage, drive, push, verify, fetch, return, pull, index |
+| `scripts/CloudBridge/lib/selftest.mjs` | le cycle complet sur un dépôt bare jetable, vert et rouge |
+| `src/components/CloudBridgeView.jsx` | la vue de la sidebar, juste sous Progress |
+
+Les tailles de morceau viennent de `src/config/chunkPolicy.js`, la reconstitution d'un manifeste
+d'archive de `src/lib/archiveChunks.js` : aucune règle n'est recopiée.
+
+### Les formats
+
+- **`MANIFEST.json`** garde la forme de `Handoff.py` (les anciens se lisent tels quels) et ajoute
+  `kind`, `bridge`, `createdAt`, `duplicates`, et deux statuts : `drive` (avec `drive.createPath`,
+  `drive.repo_path`, `drive.blob`, `drive.sha256`, `drive.chunks`) et `drive-failed` (avec `reason`).
+- **`RETURN.json`**, sur la branche, dans `Projects/<p>/handoff/<n>/return/` : pour chaque fichier,
+  sa clé, ses octets, son sha256 et ses parts (chemin, octets, blob). Un fichier de plus de 19 Mo est
+  découpé en parts `.zrpart-001…` que le Mac recolle.
+- **`Projects/zenray-progress/cloud-bridge/Pulled.json`**, sur `main` : pour chaque branche
+  rapatriée, la tête exacte, la date, la destination, et si tout a été vérifié. Une branche redevient
+  « à rapatrier » dès que sa tête bouge.
+- **`Projects/zenray-progress/cloud-bridge/Index.json`**, sur `main` : l'état complet que lit le site.
+
+### Ce que fait chaque geste
+
+1. **Envoyer** (`send`, Mac). Les fichiers sont listés, dédoublonnés, hachés. Jusqu'à 20 Mo, copie
+   dans `files/` ; au-delà, voie du drive (plus bas). Le commit ne contient que le dossier du handoff,
+   ajouté de force pour que le `.gitignore` ne puisse plus rien avaler. Puis `verify` relit `main` et
+   l'index est régénéré. Le terminal rend aussi le brief à coller dans la session cloud.
+2. **Laisser travailler le cloud** (`fetch`, VM). La VM clone Memory et, en clone partiel, le strict
+   nécessaire du site (`scripts/CloudBridge`, `src/config`, `src/lib`, sans `npm install`). `fetch`
+   ajoute seul le dossier du handoff au clone partiel s'il manque, copie chaque fichier dans
+   `/home/user/bridge/<p>/<n>/` après contrôle du sha256, recolle les gros fichiers depuis le drive.
+3. **Rendre** (`return`, VM). Les fichiers de sortie et leur reçu sont commités sur la branche
+   `cloud/<p>/<n>` (ou celle que la session impose, `--branch`). Plafond de 400 Mo par retour : Memory
+   garde son historique pour toujours, un retour plus gros est refusé avant d'écrire quoi que ce soit.
+4. **Rapatrier** (`pull`, Mac). La branche est lue sans toucher l'arbre de travail. Avec un reçu,
+   chaque part est comparée à son blob, chaque fichier recollé est comparé à son sha256 ; sans reçu
+   (ancien modèle), chaque fichier est comparé à son blob. La destination par défaut porte la tête
+   courte de la branche (`Downloads/CloudBridge/<p>/<n>/<tête>/`), et un fichier déjà présent avec un
+   autre contenu est **refusé et signalé**, jamais écrasé. Le reçu de rapatriement est poussé, l'index
+   régénéré.
+
+## La voie des gros fichiers, sans exposer de secret
+
+Le drive Create sait déjà découper n'importe quel fichier en morceaux anonymes : c'est l'archive
+universelle (`scripts/archive-folder.mjs`), éprouvée sur plus de cent trente gigaoctets. Le pont s'en
+sert tel quel, en quatre temps.
+
+1. **Un dossier d'étape au nom neutre.** Les gros fichiers sont liés (lien physique, copie en repli)
+   dans `~/.zr-cloud-bridge/stage/bridge-<empreinte>/`. Le nom du dossier devient le nom du dépôt
+   public (`zenray-productions-archive-bridge-<empreinte>`) : il ne porte donc jamais le nom humain du
+   handoff, conformément à la règle P0 anti-fuite.
+2. **L'archive, sans les rails chiffrés.** `archive-folder.mjs <étape> pages/CloudBridge/<p>/<n>
+   --no-stream --skip-noise`. Le drapeau `--no-stream` est la clé : sans lui, une image ou une vidéo
+   partirait sur un rail **chiffré**, que seule la clé maître du drive sait relire, et cette clé ne
+   doit jamais entrer dans une VM. Avec lui, tout part en morceaux binaires de 19 Mo (95 Mo au-delà
+   de 95 Mo), nommés par empreinte, sur un dépôt public, avec un manifeste `.file.json` privé dans
+   `zenray-data`.
+3. **La preuve, au commit exact.** Le Mac lit la tête de `zenray-data` par `git ls-remote` (protocole
+   Git, hors quota), relit chaque manifeste à ce commit par `raw.githubusercontent.com` (hors quota,
+   et sans le cache de cinq minutes puisque l'adresse est figée sur un commit), et **compare son
+   sha256 et sa taille au fichier local** avant d'écrire la ligne `drive`. Un manifeste qui décrit
+   autre chose fait virer la ligne en `drive-failed`, et le code de sortie en rouge.
+4. **Le manifeste voyage dans Memory.** Il est recopié dans `handoff/<n>/drive/<clé>.file.json`. La VM
+   n'a donc besoin ni de `zenray-data` ni d'un jeton : elle télécharge les morceaux publics,
+   les recolle dans l'ordre et recalcule le sha256.
+
+**Ce qui est public, dit franchement.** Des morceaux binaires sans nom ni extension, sur un dépôt au
+nom neutre : c'est exactement le modèle des archives depuis le 11 June 2026, une obfuscation et non un
+chiffrement. Pour un fichier qui ne doit exister nulle part en clair, même en morceaux, la voie du
+drive ne convient pas ; la variante sûre serait un dépôt privé que la session cloud ouvrirait avec ses
+propres droits GitHub, et c'est une décision qui revient à Matthieu.
+
+**Le jeton GitHub ne quitte jamais le Mac.** Il est lu à la volée (`GITHUB_TOKEN` ou `gh auth token`),
+passé en en-tête ou en variable d'environnement au processus d'archive, jamais écrit dans un fichier,
+un manifeste, un commit ou une commande affichée. Un test du dépôt vérifie qu'aucune commande générée
+n'en contient.
+
+## Ce que voit le site
+
+L'entrée **Cloud Bridge** vit dans la sidebar, juste sous Progress. La vue lit `Index.json` en **une
+seule requête**, par `urlLectureAffichage` : `/api/page` sert Memory depuis `raw.githubusercontent.com`,
+hors quota REST. Aucune boucle, aucun sondage : une lecture à l'ouverture, une au retour sur l'onglet,
+et le bouton « Relire ». Une lecture ratée garde le dernier état connu à l'écran et affiche sa cause ;
+un index absent affiche la commande qui le crée.
+
+On y trouve les trois gestes, chacun avec sa commande exacte à copier (la saisie du projet, du nom et
+du chemin la met à jour à la frappe, un nom invalide s'affiche en erreur au lieu d'une commande qui
+échouerait plus tard), les retours à rapatrier, les handoffs envoyés avec leur état (Vérifié, Partiel,
+Écart et sa cause), et, repliées, les branches sans reçu. Un clic sur une ligne prépare la commande
+qui la concerne.
+
+L'index a l'âge de son dernier calcul, affiché en tête de vue, et dit « ancien » au-delà de 24 heures.
+Il est recalculé à chaque `send`, `pull` et `index` ; une branche que le cloud vient de pousser
+apparaît donc au prochain de ces gestes. Une mise à jour automatique (un LaunchAgent qui lance
+`index` régulièrement) est possible, mais elle n'est pas installée : c'est un choix de Matthieu.
+
+## Limites connues et décisions ouvertes
+
+- **Les branches `claude/…` des autres sessions** (leçons de japonais, automatisations) apparaissent
+  dans « Branches sans reçu », repliées. Elles sont de vrais retours non fusionnés ; les masquer
+  demanderait une liste à décider.
+- **Un retour de plus de 400 Mo est refusé.** Le faire passer par le drive exigerait un jeton dans la
+  VM, donc un secret : exclu sans décision explicite.
+- **Rien n'est jamais supprimé automatiquement** : ni branche de retour après rapatriement, ni dossier
+  d'étape en cas d'échec de l'archive, ni handoff ancien.
+- **Le cache de raw.githubusercontent.com** peut montrer au site un index vieux de quelques minutes.
+  L'âge affiché le dit ; c'est le prix de la lecture hors quota.
+
+## Vérifier
+
+```bash
+node scripts/CloudBridge/Bridge.mjs selftest
+```
+
+```bash
+npx vitest run src/lib/cloudBridge.test.js src/components/CloudBridgeView.test.jsx scripts/CloudBridge/Bridge.test.js
+```
+
+Gestes à faire sur le Mac, dans l'ordre : [CLOUD-BRIDGE-APPLY.md](CLOUD-BRIDGE-APPLY.md).

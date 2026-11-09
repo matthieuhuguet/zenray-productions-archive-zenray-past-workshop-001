@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 560" width="980" height="560" font-family="Helvetica, Arial, sans-serif">
+  <title>Cloud Bridge : Mac, Memory sur GitHub, drive Create, VM cloud, branche de retour</title>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#3a3f45"/>
+    </marker>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#2f7fd8"/>
+    </marker>
+  </defs>
+  <rect width="980" height="560" fill="#fbfbf9"/>
+
+  <!-- Site -->
+  <rect x="30" y="30" width="230" height="96" rx="16" fill="#ffffff" stroke="#c9ccd1"/>
+  <text x="145" y="60" text-anchor="middle" font-size="16" fill="#1d2126">Site ZenRay Progress</text>
+  <text x="145" y="82" text-anchor="middle" font-size="12.5" fill="#5b636b">sidebar : Cloud Bridge</text>
+  <text x="145" y="102" text-anchor="middle" font-size="12.5" fill="#5b636b">1 lecture hors quota d'Index.json</text>
+
+  <!-- Mac -->
+  <rect x="30" y="216" width="230" height="128" rx="16" fill="#ffffff" stroke="#1d2126" stroke-width="1.5"/>
+  <text x="145" y="248" text-anchor="middle" font-size="18" fill="#1d2126">Mac de Matthieu</text>
+  <text x="145" y="272" text-anchor="middle" font-size="12.5" fill="#5b636b">Memory1 (clone de Memory)</text>
+  <text x="145" y="292" text-anchor="middle" font-size="12.5" fill="#5b636b">Bridge.mjs send / pull / index</text>
+  <text x="145" y="312" text-anchor="middle" font-size="12.5" fill="#5b636b">seul détenteur du jeton GitHub</text>
+  <text x="145" y="332" text-anchor="middle" font-size="12.5" fill="#5b636b">Downloads/CloudBridge/…</text>
+
+  <!-- Memory main -->
+  <rect x="380" y="30" width="250" height="122" rx="16" fill="#ffffff" stroke="#c9ccd1"/>
+  <text x="505" y="60" text-anchor="middle" font-size="16" fill="#1d2126">Memory sur GitHub · main</text>
+  <text x="505" y="82" text-anchor="middle" font-size="12.5" fill="#5b636b">Projects/&lt;p&gt;/handoff/&lt;n&gt;/</text>
+  <text x="505" y="101" text-anchor="middle" font-size="12.5" fill="#5b636b">MANIFEST.json · files/ · drive/</text>
+  <text x="505" y="120" text-anchor="middle" font-size="12.5" fill="#5b636b">cloud-bridge/Index.json · Pulled.json</text>
+  <text x="505" y="139" text-anchor="middle" font-size="12.5" fill="#5b636b">privé</text>
+
+  <!-- Drive Create -->
+  <rect x="380" y="214" width="250" height="132" rx="16" fill="#ffffff" stroke="#2f7fd8" stroke-dasharray="6 4"/>
+  <text x="505" y="244" text-anchor="middle" font-size="16" fill="#1d2126">Drive Create</text>
+  <text x="505" y="266" text-anchor="middle" font-size="12.5" fill="#5b636b">fichiers de plus de 20 Mo</text>
+  <text x="505" y="286" text-anchor="middle" font-size="12.5" fill="#5b636b">morceaux anonymes de 19 / 95 Mo</text>
+  <text x="505" y="305" text-anchor="middle" font-size="12.5" fill="#5b636b">dépôt public bridge-&lt;empreinte&gt;</text>
+  <text x="505" y="324" text-anchor="middle" font-size="12.5" fill="#5b636b">manifeste .file.json recopié dans Memory</text>
+
+  <!-- Branche de retour -->
+  <rect x="380" y="410" width="250" height="118" rx="16" fill="#ffffff" stroke="#c9ccd1"/>
+  <text x="505" y="440" text-anchor="middle" font-size="16" fill="#1d2126">Memory · branche de retour</text>
+  <text x="505" y="462" text-anchor="middle" font-size="12.5" fill="#5b636b">cloud/&lt;p&gt;/&lt;n&gt; (ou claude/…)</text>
+  <text x="505" y="481" text-anchor="middle" font-size="12.5" fill="#5b636b">handoff/&lt;n&gt;/return/RETURN.json</text>
+  <text x="505" y="500" text-anchor="middle" font-size="12.5" fill="#5b636b">octets · sha256 · blob de chaque part</text>
+
+  <!-- VM -->
+  <rect x="740" y="216" width="210" height="128" rx="16" fill="#ffffff" stroke="#1d2126" stroke-width="1.5"/>
+  <text x="845" y="248" text-anchor="middle" font-size="18" fill="#1d2126">VM Claude cloud</text>
+  <text x="845" y="272" text-anchor="middle" font-size="12.5" fill="#5b636b">Bridge.mjs fetch / return</text>
+  <text x="845" y="292" text-anchor="middle" font-size="12.5" fill="#5b636b">/home/user/bridge/&lt;p&gt;/&lt;n&gt;</text>
+  <text x="845" y="312" text-anchor="middle" font-size="12.5" fill="#5b636b">aucun secret</text>
+
+  <!-- 1 envoyer -->
+  <path d="M260 240 C 320 200, 330 110, 378 96" fill="none" stroke="#3a3f45" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="270" y="160" font-size="13" fill="#1d2126">1 send, ≤ 20 Mo</text>
+  <path d="M260 280 L378 280" fill="none" stroke="#2f7fd8" stroke-width="1.6" marker-end="url(#b)"/>
+  <text x="272" y="272" font-size="13" fill="#2f7fd8">1 send, &gt; 20 Mo</text>
+
+  <!-- 2 laisser travailler -->
+  <path d="M630 100 C 700 120, 760 170, 800 214" fill="none" stroke="#3a3f45" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="690" y="128" font-size="13" fill="#1d2126">2 fetch, sha256</text>
+  <path d="M630 290 L738 290" fill="none" stroke="#2f7fd8" stroke-width="1.6" marker-end="url(#b)"/>
+  <text x="640" y="282" font-size="13" fill="#2f7fd8">2 recollés</text>
+
+  <!-- 3 rendre -->
+  <path d="M820 344 C 800 420, 700 460, 632 466" fill="none" stroke="#3a3f45" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="742" y="420" font-size="13" fill="#1d2126">3 return, reçu</text>
+
+  <!-- 4 rapatrier -->
+  <path d="M380 470 C 300 466, 190 430, 160 346" fill="none" stroke="#3a3f45" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="196" y="456" font-size="13" fill="#1d2126">4 pull, rien d'écrasé</text>
+
+  <!-- index -->
+  <path d="M380 70 L262 70" fill="none" stroke="#3a3f45" stroke-width="1.2" stroke-dasharray="4 4" marker-end="url(#a)"/>
+  <text x="272" y="60" font-size="12" fill="#5b636b">Index.json</text>
+</svg>
