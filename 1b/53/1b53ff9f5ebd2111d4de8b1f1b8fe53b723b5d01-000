@@ -1,18 +1,18 @@
 {
  "project": "zenray-past",
- "generatedAt": "2026-11-09T15:10:46.292Z",
+ "generatedAt": "2026-11-09T15:49:23.865Z",
  "workshop": "/Users/zenray/.claude/tmp/tmp-zenray-past",
  "repos": {
   "engine": "/Users/zenray/Create/Build/Productions/GithubProductions/ZenRayPast",
-  "view": "ZenRayProgress src/past (origin/main b2309fb9)",
+  "view": "ZenRayProgress src/past (origin/main 494f023f)",
   "skill": "/Users/zenray/.claude/skills/zenray-past"
  },
  "files": [
   {
    "path": "PLAN.md",
    "role": "plan séquentiel (feuilles, preuves, états)",
-   "bytes": 14091,
-   "sha256": "931a36a1fbaada616c57168baef453f23f4bf63c07e9269c231371f7ec72936b"
+   "bytes": 16361,
+   "sha256": "4b577ea36df1d703697389ef7fe15de0ee8c3b2ef7888c09670c2df568b55901"
   },
   {
    "path": "SPEC.md",
@@ -29,26 +29,26 @@
   {
    "path": "Articles/index.html",
    "role": "synthèse HTML publiée",
-   "bytes": 356248,
-   "sha256": "093af2e91eba81e9bd53ac12e1226ffd25db2209ca0cefe67c97c0189b52b253"
+   "bytes": 356374,
+   "sha256": "f99b3aa20158f6a94a108935aafe1559cfe364e1dc8de47b888be3a06834edae"
   },
   {
    "path": "Articles/snapshot.json",
    "role": "relevé daté des chiffres de la synthèse",
-   "bytes": 282,
-   "sha256": "4dfc5acb5da5459905e36e2bb7f8bc53b00dbe5ef0b09f4cd74fa7e1ad24d52b"
+   "bytes": 283,
+   "sha256": "660e687cbf10ca5ba9beecae010da4175cdee7739f5c7808a0e649a9929b9262"
   },
   {
    "path": "Scripts/BuildSynthesis.mjs",
    "role": "générateur et vérificateur de la synthèse",
-   "bytes": 11870,
-   "sha256": "e36cb68674d723106718273db8411ff2ca7205306d9a58f30a90f8c152ee004b"
+   "bytes": 11995,
+   "sha256": "882762a65f2e3b699aaf2df66933e542348630a4246742f1b6b6b77b35e52448"
   },
   {
    "path": "Scripts/BuildIndexMapping.mjs",
    "role": "générateur de cet index mapping",
-   "bytes": 4455,
-   "sha256": "ecc807e8390a028cb2a177753ef361423c0fb60a27d0207815c458d0d0ff8976"
+   "bytes": 5126,
+   "sha256": "7f21e185bea0c336c738c1256d709d88621f09f98e8ce480931b0270acacb6d3"
   },
   {
    "path": "bench/heldout.json",
@@ -91,6 +91,42 @@
    "role": "documentation publique de past.dev lue le 9 November 2026",
    "bytes": 207538,
    "sha256": "093fc6266b1ee8d5751f63754ff48a9a589fa7a68f49f683f887a672a88803cf"
+  },
+  {
+   "path": "AUDIT-recall-et-past-dev-9-November-2026.md",
+   "role": "audit indépendant du rappel et de la couverture de past.dev (9 November 2026)",
+   "bytes": 26996,
+   "sha256": "4e77cc5172c9731ef39269177e1f8fae38cbee09b9dd51f46ed3875b6020b728"
+  },
+  {
+   "path": "reference/past-dev-site-9-November-2026.txt",
+   "role": "site public de past.dev (tarifs, bancs), copié le 9 November 2026",
+   "bytes": 271013,
+   "sha256": "acaf40e7613a464c1bfd1fd4afe9a4c4a16bc709d8bcaed92c35b685d84cd21a"
+  },
+  {
+   "path": "reference/past-dev-glossary-9-November-2026.txt",
+   "role": "glossaire de past.dev, copié le 9 November 2026",
+   "bytes": 166265,
+   "sha256": "f55967a34bf5af2f78468d02ad9dd13b9e8ea6dd493801e8ee20ab4c0a623846"
+  },
+  {
+   "path": "reference/past-dev-guides-9-November-2026.txt",
+   "role": "guides de past.dev, copiés le 9 November 2026",
+   "bytes": 501505,
+   "sha256": "8b7003fa76ec7737a53508906c8f5b914693970f66576d262ec8f9633d9adac2"
+  },
+  {
+   "path": "reference/past-dev-blog-9-November-2026.txt",
+   "role": "blog de past.dev, copié le 9 November 2026",
+   "bytes": 298950,
+   "sha256": "e60facd391ad71d104a8a32dabf7e92645da6725d3dcb2ddf27a97fce934ef22"
+  },
+  {
+   "path": "reference/past-dev-index-9-November-2026.txt",
+   "role": "index llms.txt de past.dev, copié le 9 November 2026",
+   "bytes": 55667,
+   "sha256": "ebfe6a1177da57600b33419c2213e04cfeff10cfcfb84565693269f39b3adf8b"
   }
  ],
  "skill": {
@@ -99,8 +135,8 @@
    {
     "path": "SKILL.md",
     "role": "skill zenray-past : méthode, appels et index de chargement à la demande",
-    "bytes": 8780,
-    "sha256": "4f5cc396838970db59c29238f6083d8bc6e0b0601615c50efefa5e6c97e56c83"
+    "bytes": 9582,
+    "sha256": "22bfc2e1ea9047bfa7257882cdf98e26140b24f4e45b95ea2d8d75b1d337e725"
    },
    {
     "path": "references/ResumeCoordinator.md",

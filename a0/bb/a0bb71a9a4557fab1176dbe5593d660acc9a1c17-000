@@ -59,7 +59,7 @@ function chain({ s, vec }) {
   // 9 November 2026, 17:40: eight sources (documents, rules and skills added), compact rows that fit the 1080 px height.
   // FR : huit sources, en lignes compactes qui tiennent dans les 1080 px.
   const src = [['Journal', s.sources.progress], ['Notes Memory', s.sources.memory], ['Règles et skills', s.sources.doctrine],
-    ['Commits', s.sources.git], ['Pull requests', s.sources.pr], ['Séances Claude et Codex', s.sources.conversations],
+    ['Commits', s.sources.git], ['Pull requests', s.sources.pr], ['Séances des agents', s.sources.conversations],
     ['Notes du jour du site', s.sources.notes], ['Documents', s.sources.documents]].filter(([, n]) => n != null)
   const ROW = { top: 70, step: 118, h: 104 }
   const left = src.map(([t, n], i) => sourceBox(60, ROW.top + i * ROW.step, 400, ROW.h, t, fr(n))).join('\n')
@@ -77,7 +77,7 @@ function chain({ s, vec }) {
   ${arrow(1340, 330, 1420, 520)}${arrow(1340, 700, 1420, 560)}
   ${box(1420, 440, 440, 200, 'Rappel sous budget', '≤ 6 000', 'tokens : mots, sens et temps', 'hi')}
   ${arrow(1640, 440, 1640, 330)}${arrow(1640, 640, 1640, 760)}
-  ${box(1420, 160, 440, 170, 'Agents', 'MCP', 'Claude Code et Codex')}
+  ${box(1420, 160, 440, 170, 'Agents', 'MCP', 'Claude Code, Codex, Antigravity')}
   ${box(1420, 760, 440, 170, 'Onglet Past', '3D', 'ZenRayProgress')}
   ${box(600, 860, 330, 150, 'Apple contextuel', `MRR ${dec(ctx[0].mrr)}`, 'écarté', 'off')}
   ${box(1010, 860, 330, 150, 'Apple phrases', `MRR ${dec(ctx[1].mrr)}`, 'écarté', 'off')}
@@ -134,8 +134,8 @@ svg .bar { fill: var(--line); } svg .bar.hi { fill: var(--hi); }
 </style></head><body><main>
 <h1>ZenRay Past</h1>
 <p>ZenRay Past est la mémoire de l’écosystème ZenRay. Il sert à ce qu’aucune session d’agent, qu’il s’agisse de Claude Code ou de Codex, ne recommence sans savoir ce qui a été décidé, quelle valeur a remplacé laquelle et où le travail s’est arrêté, et à ce que les notes du jour puissent être interrogées comme une base de données du passé.</p>
-<p>Il recueille sur le Mac le passé brut et daté, soit ${num(fr(s.points))} points tirés du journal, des notes de Memory, des règles et des skills, des commits, des conversations et des notes du jour du site, qu’il connaît avec leur heure d’écriture environ une minute après leur enregistrement, et il en tire ${num(fr(s.memories))} souvenirs courts reliés à leur source. Un modèle de vecteurs local et un graphe du temps distinguent la valeur actuelle de ses versions dépassées, si bien qu’une question ne reçoit que les preuves utiles, sous un budget fixe de tokens.</p>
-<p>Le banc du ${num('9 novembre 2026')} l’a mesuré : un lecteur qui ne voyait que ces preuves a répondu juste à ${num(`${total} questions sur ${of}`)}, dont ${num(reader.heldout.of)} écrites à l’écart du réglage, avec environ ${num(fr(reader.meanTokensPerQuestion))} tokens par question, contre environ ${num(fr(reader.baseline.tokensPerQuestion))} pour une recherche par grep. Les agents y accèdent par un serveur MCP, et l’onglet Past de ZenRayProgress en montre la chronologie en 3D.</p>
+<p>Il recueille sur le Mac le passé brut et daté, soit ${num(fr(s.points))} points tirés du journal, des notes de Memory, des règles et des skills, des commits, des conversations de Claude Code, de Codex et d’Antigravity, et des notes du jour du site, qu’il connaît avec leur heure d’écriture environ une minute après leur enregistrement, et il en tire ${num(fr(s.memories))} souvenirs courts reliés à leur source. Un modèle de vecteurs local et un graphe du temps distinguent la valeur actuelle de ses versions dépassées, si bien qu’une question ne reçoit que les preuves utiles, sous un budget fixe de tokens.</p>
+<p>Le banc du ${num('9 novembre 2026')} l’a mesuré : un lecteur qui ne voyait que ces preuves a répondu juste à ${num(`${total} questions sur ${of}`)}, dont ${num(reader.heldout.of)} écrites à l’écart du réglage, avec environ ${num(fr(reader.meanTokensPerQuestion))} tokens par question, contre environ ${num(fr(reader.baseline.tokensPerQuestion))} pour une recherche par grep. Les agents y accèdent par un serveur MCP, et l’onglet Past de ZenRayProgress en montre la chronologie en 3D ainsi que l’état du service, qui se relance seul quand son code change.</p>
 <figure>${chain(n)}</figure>
 <figure>${bench(n)}</figure>
 </main></body></html>`

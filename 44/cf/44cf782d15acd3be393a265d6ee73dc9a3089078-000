@@ -1,0 +1,158 @@
+# Audit de ZenRay Past : comment le rappel répond, et ce qu'on a lu de past.dev (9 November 2026)
+
+Audit fait à partir du code et des fichiers, le 9 November 2026. Les chemins de code sont relatifs au dépôt `/Users/zenray/Create/Build/Productions/GithubProductions/ZenRayPast` (abrégé « dépôt »). Rien n'a été modifié ni rafraîchi ; seuls `recall`, `status`, `node --test` (41 tests verts) et les bancs `bench/eval.mjs` en lecture ont été lancés, plus une lecture directe de la base en mode lecture seule pour tracer un exemple.
+
+Vocabulaire de base. Un **data point** est un texte brut daté (une entrée du journal, une section de note, un commit, une séance de conversation). Un **souvenir** est une courte phrase tirée d'un data point (une puce, une ligne de tableau), gardée avec l'extrait exact dont elle vient. **FTS5** est le moteur de recherche par mots intégré à SQLite. Un **vecteur** est une liste de 384 nombres qui représente le sens d'une phrase ; deux phrases de sens proche ont des vecteurs proches (cosinus élevé). **RRF** (fusion par rang réciproque) est une façon de mélanger plusieurs classements en ne regardant que les rangs.
+
+## A1. Ce qui entre
+
+Huit sources alimentent la base (`src/refresh.mjs:24-33`, réglages dans `src/config.mjs:122-194`). Comptes mesurés par `past status` le 9 November 2026 : memory 22 333 data points, doctrine 6 328, git 4 803, progress 3 847, conversations 3 063, documents 85, notes 68, pr 29 ; au total 186 267 souvenirs et autant de vecteurs.
+
+Chaque data point reçoit sa date de la manière suivante, et le champ `date_source` garde la façon dont on l'a obtenue.
+
+- Journal `PROGRESS.md` : l'horodatage écrit de l'entrée, `written` (`src/sources/progress.mjs:25-34`).
+- Memory1 et doctrine : une section est coupée en tronçons qui partagent la même date écrite (forme `(5 November 2026)` en fin de ligne, `- 5 November 2026 :` en début, ou date dans le titre ; `src/dates.mjs:28-49`, `src/sources/memory.mjs:70-95`). Sans date écrite, la plus ancienne date `git blame` des lignes, `git` ; sans git, la date du fichier, `file-mtime` (`memory.mjs:91-97`). Ce dernier repli est le plus fragile, car il date de la dernière écriture et non de l'événement.
+- Commits : date de l'auteur (`git.mjs:56`). Pull requests : date de création GitHub (`git.mjs:91`).
+- Conversations Claude, Codex, Antigravity : une « séance » est un bloc de messages sans silence de 30 minutes, datée à son premier message, `transcript` (`src/sources/conversations.mjs:41-72`, `config.mjs:162`). Les heures affichées suivent le fuseau Paris ou Tokyo selon la période (`config.mjs:21-25`). On ne garde que ce que Matthieu a tapé et les réponses de l'agent, jamais les sorties d'outils (`conversations.mjs:2`).
+- Notes du site : jour de la note, ou heure de dernière écriture si elle est connue (`notes.mjs:44`). Documents : date de l'index (`documents.mjs:50`).
+
+Ce qui est exclu : les dossiers `Credentials/`, `Skills/`, `tmp`, les index de conversations, `Projects/conversation-*` et les gros fichiers japonais (`config.mjs:126-127`) ; les commits `auto-sync` et `backup` (`config.mjs:147`) ; les sessions Codex automatiques (`config.mjs:165-166`). Contre les secrets, `src/secrets.mjs` retire toute ligne qui ressemble à une clé, un mot de passe ou un code à six chiffres près de « code », « pin » ou « drive » (ligne 4), les sections intitulées Credentials, Confidential, Mots de passe et Recovery Codes (ligne 16), et les valeurs connues stockées en empreinte SHA-256 (lignes 10-14). Le filtre est appliqué dans chaque source, et c'est une liste de motifs : un secret écrit sous une forme que les motifs ne voient pas passerait. Ce risque est réel et n'est pas mesuré (inconnu).
+
+Une seconde ingestion ne recalcule que ce qui a changé : même identifiant et même empreinte, rien ; empreinte différente, nouvelle révision qui remplace l'ancienne (`src/ingest.mjs:11-40`) ; un identifiant disparu de son origine est oublié (`ingest.mjs:56-58`). C'est la même logique de remplacement que décrit past.dev.
+
+## A2. Des données brutes aux souvenirs
+
+L'extraction est déterministe, sans modèle de langage (`src/extract.mjs:1-5`). Un data point est coupé en énoncés : une puce, une ligne de tableau (avec le titre de colonne devant chaque cellule), un champ du journal (`Fait`, `Décision`, `Prochain`, etc., `extract.mjs:44-62`), une demande de Matthieu dans une conversation (`extract.mjs:33-37`), ou le sujet d'un commit (`extract.mjs:64-67`). Un énoncé trop long est recoupé en phrases (`extract.mjs:71-81`).
+
+Chaque souvenir reçoit un **type** par expressions régulières (`extract.mjs:12-18`, motifs en `config.mjs:112-114`) : `rule` si le texte contient « toujours », « jamais », « règle », « priorité », etc. ; `temporal-anchor` pour « avant le », « échéance » ; `claim` s'il contient un chiffre, un signe égal, « version », « prix » ou une devise ; sinon `observation`. Les champs du journal imposent leur type (`Décision` donne `rule`, `Prochain` donne `mention`). Il existe donc cinq types en base (claim 103 190, observation 51 024, rule 17 140, mention 14 124, temporal-anchor 789) contre huit chez past.dev.
+
+Chaque souvenir reçoit un **statut** (`extract.mjs:20-25`) : `retracted` si le texte contient « abandonné », « annulé », « obsolète », « deprecated », « remplacé par », etc. ; `proposed` pour « à valider » ; `hypothetical` pour « non vérifié », « peut-être » ; sinon `fact`. C'est une détection par mots, sans lecture de la phrase : une règle qui dit « on a abandonné X, donc faire Y » sera marquée `retracted` à cause d'un seul mot.
+
+Les **corrections** : seules les tournures structurelles comptent, par exemple « correction de la ligne « … » » ou « remplace la règle » (`config.mjs:119`). Le texte cité entre guillemets français (au moins 8 caractères) est cherché dans un souvenir plus ancien de la même origine, c'est-à-dire du même fichier (`extract.mjs:104-107`, requête `114-117`). Si on le trouve, un lien `supersedes` est écrit et l'ancien souvenir reçoit `superseded_at` et `superseded_by` (`extract.mjs:130-136`). Limite visible : une correction qui ne cite pas l'ancien texte entre guillemets, ou qui se trouve dans un autre fichier, ne crée aucun lien ; c'est la résolution « dans la page » (A3) qui prend le relais.
+
+Analogie : un scribe qui range les parchemins d'une bibliothèque de Witcher. Il colle une étiquette (règle, valeur, échéance) et une date sur chaque phrase, et barre un ancien parchemin seulement quand un nouveau dit en toutes lettres « ceci annule la ligne ».
+
+## A3. Comment une question reçoit sa réponse
+
+Le rappel est dans `src/recall.mjs` (fonction `recall`, ligne 32). Étapes dans l'ordre.
+
+1. **Date de la question** (lignes 34-36). Si la question contient une date écrite, elle devient la date de référence `asOf` (fin de ce jour) ; sinon c'est maintenant. Tout ce qui est postérieur à `asOf` est exclu (lignes 44-47 et 73). Danger noté : une question comme « que dit la règle du 12 October 2026 ? » coupe le monde à cette date et cache les versions plus récentes qui l'ont remplacée.
+2. **Recherche par mots** (lignes 39, 43-48). La question est repliée sans accents, les mots vides français et anglais sont retirés (`config.mjs:196-198`), les mots d'au moins cinq lettres sont cherchés par leur racine en préfixe, et le tout est relié par OR (`recall.mjs:23-28`). Deux listes : les souvenirs (150 candidats, `bm25` pondéré titre 1,0 et sujet 0,4) et les textes bruts (30 candidats, poids 0,5).
+3. **Recherche par le sens** (lignes 49-61). La question est transformée en vecteur par le modèle local multilingual-e5-small quantifié (`src/vectors.mjs`, `config.mjs:93-101`), puis comparée à tous les vecteurs de souvenirs par produit scalaire exhaustif (`vectors.mjs:74-90`, 150 candidats). Si cette étape échoue, la page le dit (`vectors: 'failed'`, `recall.mjs:57-59`, et l'en-tête MCP `mcp.mjs:11`).
+4. **Fusion par rang** (ligne 41). Chaque liste donne à un candidat `poids / (60 + rang)` ; les trois contributions s'additionnent (poids 1,0 mots-souvenirs, 1,0 sens, 0,5 mots-textes bruts, `config.mjs:58-64`).
+5. **Le temps** (lignes 74-82), qui multiplie le score fusionné :
+   - récence : `1 + 0,3 × exp(−âge / 60 jours)` (ligne 74) ;
+   - date nommée : si la question nomme un jour, `× (1 + 2,0 × exp(−distance / 3 jours))` (ligne 75) ;
+   - intention de source : si la question dit « ma note du jour », « journal », « commit », « conversation », « document » ou « règle », la source correspondante est multipliée par 1,8 (ligne 76, motifs `config.mjs:78-85`) ;
+   - jour exact : source demandée et jour nommé identique, `× 3,0` (ligne 77) ;
+   - retiré (`retracted`) : `× 0,5` (ligne 78) ; dépassé (`superseded_at` antérieur à `asOf`) : `× 0,5`, sauf si la question est historique (« avant », « ancien », « évolution », motif `config.mjs:76`) ou si l'appel passe `history` (lignes 79-80).
+6. **Résolution des versions dans la page** (lignes 85-101). Parmi les 60 meilleurs souvenirs, si deux d'entre eux ont des vecteurs de cosinus au moins égal à 0,93 et au moins un jour d'écart, le plus ancien est marqué dépassé par le plus récent, sa note est divisée par deux, et il reste affiché avec sa date. C'est le mécanisme qui rend « 33 sources » dépassé par « 54 sources » sans correction écrite.
+7. **Emballage sous budget** (lignes 103-133). On parcourt les candidats par score décroissant et on ajoute des documents entiers tant que le budget de jetons n'est pas dépassé (quatre caractères par jeton, `config.mjs:11-13`). Un document trop gros est sauté et on continue avec le suivant (ligne 128), jamais coupé. Les quatre premières sources reçoivent en plus une fenêtre de 1 600 caractères de leur texte (lignes 119-123, `config.mjs:73-74`). Plafond de 60 résultats et de 8 000 jetons (`config.mjs:12, 62, 75`).
+
+Exemple réel, lancé le 9 November 2026 : « Quel consulat Matthieu doit-il utiliser pour le PVT ? ». La requête de mots devient `"consulat"* OR "matthieu"* OR "doit-il" OR "utiliser"* OR "pvt"`. Le résultat n° 1 est le souvenir `m:5e116faf…` du 23 October 2026 (« Le PVT se dépose au consulat de résidence. Pour Matthieu, cela signifie Marseille pour Aix, jamais Strasbourg. »), page de 7 052 jetons. Signaux relevés dans la base : rang 1 par les mots et rang 1 par le sens, donc 1/61 + 1/61 = 0,0328, multiplié par la récence 1 + 0,3 × exp(−17/60) = 1,23, soit environ 0,040. Le n° 2 est rang 2 par les mots et rang 15 par le sens, donc 1/62 + 1/75 = 0,0295 avant la même récence. Observation honnête : les quatre premiers résultats viennent tous d'un fichier d'archive de questions et réponses (`Knowledge/archive/Questions1-V1-23-October-2026.md`, issu de ZenRay Knowledge, abandonné), qui reformule déjà la réponse sous forme de question ; les sources primaires (CLAUDE.md, ZenRayProjects1.md) ressortent aux rangs lexicaux 20 à 42 et sont donc moins bien classées. La bonne réponse est tout en haut, mais grâce à un raccourci qui est lui-même un dérivé.
+
+## A4. Ce que reçoit l'agent et la fraîcheur
+
+Le serveur MCP (`src/mcp.mjs:21-57`, protocole minimal sur stdio) expose six outils.
+
+- `past_recall` : le rappel ci-dessus, budget 6 000 jetons par défaut, 8 000 au plus, avec `asOf` (date de perspective) et `history` (garder les versions dépassées en haut). Chaque résultat porte sa date, son type, son statut éventuel, « actuel » ou « DÉPASSÉ le … », l'identifiant de source et l'extrait (`mcp.mjs:10-19`).
+- `past_state` : le même rappel en mode historique, trié du plus ancien au plus récent, budget 3 000 (`mcp.mjs:85-88`).
+- `past_timeline` : les data points entre deux jours, du plus récent au plus ancien (`mcp.mjs:89-92`, `src/server.mjs:29-57`).
+- `past_resume` : un bref pour un projet : prochaines étapes nommées dans le journal et dernières séances, moins de 2 000 jetons (`mcp.mjs:59-78`).
+- `past_trace` : un data point complet avec ses souvenirs (`mcp.mjs:94-98`).
+- `past_status` : tailles par source, nombre de souvenirs et de vecteurs, dernière synchronisation, état du service (`mcp.mjs:99-104`).
+
+Fraîcheur : un service launchd rafraîchit toutes les sources toutes les 10 minutes, les notes du jour toutes les minutes, les pull requests toutes les 6 passes (une heure), et purge les octets supprimés toutes les 144 passes (un jour) (`config.mjs:44-55`, `bin/past.mjs:59-91`). Les souvenirs ne sont reconstruits que si une donnée a changé, et les vecteurs manquants sont calculés dans la foulée (`src/refresh.mjs:45-48`). Une base est déclarée « stale » après 25 minutes sans rafraîchissement réussi et « failing » après une erreur (`src/daemonState.mjs:32-42`) ; si le code change sous le service, il s'arrête pour que launchd le relance (`bin/past.mjs:62`). Le dernier `lastSync` lu était 15:24 UTC le 9 November 2026. Il n'y a pas de rappel injecté automatiquement à chaque message : le seul hook de session de `~/.claude/settings.json` est celui du suivi de feedback, et l'agent doit appeler l'outil de lui-même (consigne de CLAUDE.md). C'est une différence avec les plugins de past.dev, qui rappellent à chaque prompt.
+
+## B1. Avons-nous la documentation complète de past.dev ?
+
+Réponse : la documentation technique (`/docs`) oui, le reste du site non.
+
+Le fichier sauvegardé `reference/past-dev-llms-full-9-November-2026.txt` (207 538 octets, 3 222 lignes) correspond au fichier `https://past.dev/docs/llms-full.txt`. Comparé le 9 November 2026 au fichier en ligne (207 535 octets) : seules trois lignes diffèrent, toutes sur le crédit offert à l'inscription (150 000 et 400 000 crédits dans la copie, 50 000 et 200 000 en ligne ; la page a changé depuis). Les 31 pages de documentation listées par `https://past.dev/llms.txt` (11 de MCP, 12 de Memory API, 8 de plugins) sont toutes présentes dans la copie, chacune avec sa ligne `Source:`.
+
+Ce que la copie ne contient pas, et que le même index `llms.txt` (284 lignes) annonce, avec la taille actuelle des corpus récupérés :
+
+| Corpus absent | Taille en ligne | Contenu |
+|---|---|---|
+| Site principal `/llms-full.txt` | 271 013 octets | accueil, tarifs, benchmarks (BEAM, LoCoMo, DolphinBench), sécurité, entreprise |
+| Guides `/guides/llms-full.txt` | 501 505 octets | guides d'ingénierie : faits qui changent, audit, rétention, effacement, résolution d'entités |
+| Glossaire `/glossary/llms-full.txt` | 166 265 octets | une soixantaine de définitions (fenêtre de validité, remplacement de fait, bitemporel, abstention, statut de preuve, etc.) |
+| Blog `/blog/llms-full.txt` | 298 950 octets | articles de recherche et comparaisons |
+| Pages `/vs/*`, intégrations, secteurs, changelog | non récupérées | comparaisons, adaptateurs, cas d'usage ; le changelog du 2 November 2026 annonce déjà des changements récents |
+| `openapi.json`, `/auth.md`, `/pricing.md` | non récupérés | description machine de l'API |
+
+Environ 1,24 Mo de texte public n'a donc pas été sauvegardé, contre 0,21 Mo lu. Ce qui manque ne change pas le contrat de l'API, mais il contient les définitions des notions que ZenRay Past prétend reproduire (fenêtre de validité, abstention, statut de preuve, rappel hybride) et la méthode d'évaluation de past.dev. Savoir si un agent a réellement relu les 207 Ko est inconnu ; ce qu'on peut prouver est que la copie est complète pour `/docs` et que `SPEC.md` ne mentionne aucune lecture des guides, du glossaire ni du blog (aucune occurrence trouvée par recherche).
+
+## B2. Ce que past.dev documente, et où ZenRay Past en est
+
+Légende : fait, partiel, absent. Le fichier indiqué est celui du dépôt.
+
+| Notion de past.dev | Statut | Fichier et remarque |
+|---|---|---|
+| Data point (texte brut, id stable, horodatage, label, metadata) | fait | `src/ingest.mjs`, `src/db.mjs:12-27` |
+| Révision (même id, contenu changé, remplacement) et non-changement (même empreinte) | fait | `ingest.mjs:11-40` ; hash sur contenu, label, date, metadata |
+| Découpe : conversation par séance, document par partie, parts de moins de 16 000 caractères | fait | `config.mjs:17` (15 000), `memory.mjs:100-110`, `conversations.mjs:60-72` |
+| Mémoires dérivées avec extrait source | partiel | `extract.mjs` ; 5 types sur 8 (manquent `membership`, `identity` ; `source` est rendu à part) |
+| Statuts `proposed`, `hypothetical`, `retracted` | partiel | `extract.mjs:20-25` ; par mots seulement, sans lecture du locuteur |
+| Remplacement de fait (`supersededAt`) | partiel | `extract.mjs:104-136` (corrections explicites) et `recall.mjs:85-101` (cosinus 0,93) ; pas de fenêtre de validité (`validFrom`, `validTo`) |
+| Résolution d'état courant | partiel | facteur 0,5 sur le dépassé, historique sur demande ; `past_state` (`mcp.mjs:85`) |
+| Rappel hybride mots plus sens, classé, sans réponse générée | fait | `recall.mjs` |
+| Perspective temporelle `queryTimestamp` | fait | `asOf` (`recall.mjs:35`, `mcp.mjs:82`) |
+| Fenêtre `occurredFrom` et `occurredTo` dans le rappel | absent | seule la chronologie `past_timeline` filtre par intervalle |
+| Budget de preuves, documents entiers, `usedEvidenceTokens`, `sort` chronologique | fait | `recall.mjs:33,103-135` ; pas de niveaux `low` à `extra-high`, un seul plafond à 8 000 |
+| `limit` de documents | partiel | constante `maxResults` à 60 (`config.mjs:75`), non réglable par appel |
+| Chronologie / trace (`/trace/nodes`, lineage, timeline) | partiel | `past_trace`, `past_timeline` ; pas de graphe de lignée entre souvenirs et sources |
+| Séances de 30 minutes des plugins (sittings) | fait | `conversations.mjs:41-72`, `config.mjs:162` |
+| Rappel à chaque prompt (plugins Claude Code, Codex, Cursor) | absent | l'agent appelle `past_recall` lui-même ; seul `past_resume` est conseillé au début |
+| Rédaction des secrets avant envoi | fait | `secrets.mjs`, appliqué à chaque source |
+| Audiences, identités, traits (contrôle d'accès) | absent | colonne `audience` figée à `private` (`config.mjs:18`) ; base mono-utilisateur, sans notion de lecteur |
+| Suppression par identifiant (oubli) | partiel | `ingest.mjs:56-71` oublie ce qui disparaît de sa source ; pas d'API de suppression ciblée |
+| Statut d'ingestion (`queued`, `processing`, `failed`, retry, explain, estimate) | absent | table `ingestions` (`db.mjs:70-73`) enregistre les passes ; tout est synchrone |
+| Clés d'idempotence, webhooks, projets, clés API, journal des requêtes, usage | absent | sans objet pour un moteur local sans API réseau (le serveur local `src/server.mjs` ne sert que la vue Past) |
+| Serveurs MCP d'administration et d'utilisateurs | absent | seul un MCP local de lecture (`mcp.mjs`) |
+| Évaluation : BEAM, LoCoMo, DolphinBench | absent | remplacée par deux petits bancs maison (B3) |
+| Plugins par agent (Claude Code, Codex, Cursor, JetBrains, Hermes) | partiel | équivalent fonctionnel par MCP et `zenray-past` ; pas de hooks d'envoi ni de rappel automatique |
+| Abstention (« je ne sais pas ») | absent | le moteur rend toujours une page pleine ; seul le lecteur humain ou agent répond « INTROUVABLE » |
+
+## B3. Ce que « 100 % » peut et ne peut pas vouloir dire
+
+Aucun système de recherche ne peut garantir 100 % sur des questions futures. Ce que ZenRay Past peut promettre est un chiffre mesuré sur un ensemble de questions précis, avec sa marge d'incertitude. Voici ce qui existe.
+
+**Mesures existantes.**
+- Test du lecteur (`bench/reader-score-9-November-2026.json`) : un agent qui ne lit que la page de rappel répond juste à 13 questions sur 13 sur le banc réglé et à 12 sur 12 sur le banc tenu à l'écart (écrit par un autre agent avant le réglage), pour 5 980 jetons en moyenne, contre 12 sur 13 et 23 337 jetons pour Claude Code qui cherche par grep (mesure du 8 November 2026). La note du fichier précise que les pages du banc réglé contenaient des extraits de FEEDBACK et de conversations qui répètent le banc du 8 November 2026 : une fuite possible.
+- Banc des preuves (`bench/eval.mjs`), relancé par moi à l'instant sur la base vivante : banc réglé 13 réussites sur 13 questions notées, dont 11 dans les cinq premiers rangs, 7 103 jetons en moyenne, 507 ms ; banc tenu à l'écart 9 sur 10, dont 6 dans les cinq premiers rangs, 7 580 jetons, 520 ms. La question h01 (relecture des films avant déchargement) n'a pas ses chaînes attendues dans la page aujourd'hui ; je n'ai pas cherché pourquoi (inconnu, probablement une formulation différente ou un rang trop bas) mais cela montre que le chiffre bouge avec la base. Deux autres questions du banc tenu à l'écart ne sont retrouvées qu'au 19e et au 34e rang (h04, h06), et le rang 21 apparaît aussi sur le banc réglé (q08) : la réponse est dans la page, mais loin du haut.
+- Choix du modèle de vecteurs (`bench/vectors-9-November-2026.json`) : e5-small obtient un MRR de 0,414 et 6 bonnes sur 12 dans les dix premiers, contre 0,130 et 0,088 pour les deux modèles Apple testés. C'est le meilleur des trois, pas un bon score absolu ; le rang de fusion et les mots compensent.
+
+**Ce que ces chiffres ne couvrent pas.** Vingt-cinq questions écrites par la même équipe, sur un seul jour, dont 11 sur des valeurs remplacées. Avec 25 réussites sur 25, la borne basse à 95 % de confiance du taux réel est d'environ 88 % (règle des trois), pas 100 %. Les questions ouvertes, les comparaisons entre plusieurs documents, les questions sans réponse (seulement trois pièges) et les sujets hors du journal et de Memory1 ne sont pas mesurés. Le test du lecteur a été noté à la main, sur un seul lecteur.
+
+**Modes d'échec visibles dans le code.**
+- Une date dans la question coupe la perspective à ce jour (`recall.mjs:34-36`) et peut cacher la version actuelle.
+- Les statuts se décident par mots (« abandonné », « remplacé par »), avec faux positifs probables (`config.mjs:115`, `extract.mjs:20-25`).
+- Une correction n'est liée que si elle cite l'ancien texte entre guillemets français, dans le même fichier (`extract.mjs:104-136`) ; sinon seul le cosinus à 0,93 d'un petit modèle quantifié tranche, sur les 60 premiers souvenirs seulement (`recall.mjs:87`). Deux valeurs différentes d'un même sujet formulées autrement ne seront pas reliées, et deux phrases voisines mais distinctes peuvent l'être à tort.
+- Le dépassé n'est que divisé par deux (`config.mjs:70`) : une ancienne valeur très bien classée par les mots peut encore précéder la nouvelle.
+- Pas d'abstention : le moteur remplit toujours à peu près tout le budget (7 000 à 8 000 jetons), même quand la réponse n'existe pas ; le piège dépend entièrement du lecteur.
+- Dérivés contaminants : des archives de questions et réponses (ZenRay Knowledge, abandonné) et les FEEDBACK de zenray-past, qui citent les questions du banc, se classent haut et peuvent faire passer un test sans que les sources primaires soient bien rappelées (voir l'exemple de A3).
+- Dates de repli `file-mtime` quand ni date écrite ni historique git (`memory.mjs:95-97`).
+- Fraîcheur : un fait écrit il y a moins de 10 minutes peut manquer (une minute pour les notes, une heure pour les pull requests) ; une panne du service se voit seulement si l'agent lit `past_status`.
+- Les motifs de secrets sont une liste, non une preuve d'absence de secret.
+- Le cache de la matrice de vecteurs est invalidé par le nombre de lignes seulement (`vectors.mjs:61`) ; si des vecteurs sont remplacés sans changer le nombre, un processus long garderait l'ancienne matrice.
+- Aucune évaluation face aux bancs publics de past.dev : on ne peut donc pas dire que ZenRay Past égale le produit.
+
+Analogie : être sûr à 100 % de ne jamais se perdre dans le Donjon d'une carte de Zelda n'est atteignable qu'en l'ayant explorée entièrement. Ici, on a exploré une vingtaine de salles ; elles sont toutes passées, mais la carte compte 186 267 souvenirs.
+
+Conclusion de B3 : on peut affirmer « 25 questions sur 25 retrouvées par un lecteur sur des pages d'au plus 8 000 jetons » avec la date et le jeu de questions, et un ordre de grandeur de 88 % au pire sur la même distribution de questions. On ne peut pas affirmer « 100 % ».
+
+## Tableau de synthèse
+
+| Question | Réponse | Preuve |
+|---|---|---|
+| Comment ZenRay Past retrouve-t-il une réponse précise ? | Il mélange une recherche par mots, une recherche par le sens et une recherche dans les textes bruts par rang, multiplie le tout par des facteurs de temps, marque les versions dépassées, puis emballe des documents entiers sous 6 000 à 8 000 jetons. | `src/recall.mjs:32-136` ; exemple réel du consulat : rang 1 par les mots et par le sens (lignes 41, 74) |
+| D'où viennent les dates ? | Date écrite, sinon date git, sinon date du fichier ; commits et séances ont leur propre date. | `memory.mjs:91-97`, `progress.mjs:25-34`, `conversations.mjs:72`, `git.mjs:56` |
+| Comment sait-il qu'une valeur est dépassée ? | Soit une correction explicite citée entre guillemets français, soit deux souvenirs de cosinus au moins 0,93 séparés d'un jour ; le dépassé est divisé par deux, jamais retiré. | `extract.mjs:104-136`, `recall.mjs:85-101`, `config.mjs:70-72` |
+| Qu'obtient l'agent ? | Six outils MCP ; chaque preuve porte sa date, son type et « actuel » ou « DÉPASSÉ ». | `mcp.mjs:10-57` |
+| La base est-elle à jour ? | Rafraîchie toutes les 10 minutes (notes chaque minute), état visible par `past_status` ; pas de rappel automatique à chaque prompt. | `config.mjs:44-55`, `daemonState.mjs:32-42`, `settings.json` (un seul hook SessionStart, étranger à Past) |
+| A-t-on lu toute la documentation de past.dev ? | Toute la partie `/docs` (31 pages sur 31, identique au site, sauf trois lignes sur les crédits) ; mais pas le site principal, les guides, le glossaire ni le blog (environ 1,24 Mo). | comparaison de `reference/past-dev-llms-full-9-November-2026.txt` à `https://past.dev/docs/llms-full.txt` et à `https://past.dev/llms.txt` |
+| Est-ce que « 100 % » est garanti ? | Non. 25 sur 25 sur des questions maison, soit environ 88 % au pire à 95 % de confiance ; le banc des preuves vivant donne 9 sur 10 sur le banc tenu à l'écart aujourd'hui. | `bench/reader-score-9-November-2026.json`, `node bench/eval.mjs` lancé le 9 November 2026 |
+| Quels cas peuvent échouer ? | Question contenant une date, statuts par mots, corrections non citées, pas d'abstention, archives dérivées qui polluent le classement, secrets hors motifs. | `recall.mjs:34-36`, `extract.mjs:20-25, 104-136`, exemple de A3 |
+
+*Ceci n'est pas une source de vérité : les chiffres viennent de commandes relançables ci-dessus, vérifie-les et fie-toi à ton for intérieur.*

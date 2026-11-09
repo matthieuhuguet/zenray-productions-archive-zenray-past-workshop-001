@@ -27,35 +27,35 @@ svg .bar { fill: var(--line); } svg .bar.hi { fill: var(--hi); }
 </style></head><body><main>
 <h1>ZenRay Past</h1>
 <p>ZenRay Past est la mémoire de l’écosystème ZenRay. Il sert à ce qu’aucune session d’agent, qu’il s’agisse de Claude Code ou de Codex, ne recommence sans savoir ce qui a été décidé, quelle valeur a remplacé laquelle et où le travail s’est arrêté, et à ce que les notes du jour puissent être interrogées comme une base de données du passé.</p>
-<p>Il recueille sur le Mac le passé brut et daté, soit <span class="num">36 132</span> points tirés du journal, des notes de Memory, des règles et des skills, des commits, des conversations et des notes du jour du site, qu’il connaît avec leur heure d’écriture environ une minute après leur enregistrement, et il en tire <span class="num">186 209</span> souvenirs courts reliés à leur source. Un modèle de vecteurs local et un graphe du temps distinguent la valeur actuelle de ses versions dépassées, si bien qu’une question ne reçoit que les preuves utiles, sous un budget fixe de tokens.</p>
-<p>Le banc du <span class="num">9 novembre 2026</span> l’a mesuré : un lecteur qui ne voyait que ces preuves a répondu juste à <span class="num">25 questions sur 25</span>, dont <span class="num">12</span> écrites à l’écart du réglage, avec environ <span class="num">5 980</span> tokens par question, contre environ <span class="num">23 337</span> pour une recherche par grep. Les agents y accèdent par un serveur MCP, et l’onglet Past de ZenRayProgress en montre la chronologie en 3D.</p>
+<p>Il recueille sur le Mac le passé brut et daté, soit <span class="num">42 085</span> points tirés du journal, des notes de Memory, des règles et des skills, des commits, des conversations de Claude Code, de Codex et d’Antigravity, et des notes du jour du site, qu’il connaît avec leur heure d’écriture environ une minute après leur enregistrement, et il en tire <span class="num">215 978</span> souvenirs courts reliés à leur source. Un modèle de vecteurs local et un graphe du temps distinguent la valeur actuelle de ses versions dépassées, si bien qu’une question ne reçoit que les preuves utiles, sous un budget fixe de tokens.</p>
+<p>Le banc du <span class="num">9 novembre 2026</span> l’a mesuré : un lecteur qui ne voyait que ces preuves a répondu juste à <span class="num">25 questions sur 25</span>, dont <span class="num">12</span> écrites à l’écart du réglage, avec environ <span class="num">5 980</span> tokens par question, contre environ <span class="num">23 337</span> pour une recherche par grep. Les agents y accèdent par un serveur MCP, et l’onglet Past de ZenRayProgress en montre la chronologie en 3D ainsi que l’état du service, qui se relance seul quand son code change.</p>
 <figure><svg viewBox="0 0 1920 1080" width="1920" height="1080" role="img" aria-label="Chaîne de valeur de ZenRay Past">
   <defs><marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="mk"/></marker>
   <marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="mk2"/></marker></defs>
   <g class="box"><rect x="60" y="70" width="400" height="104" rx="18"/>
   <text class="t" x="84" y="108">Journal</text>
-  <text class="n" x="84" y="158">3 846</text></g>
+  <text class="n" x="84" y="158">3 847</text></g>
 <g class="box"><rect x="60" y="188" width="400" height="104" rx="18"/>
   <text class="t" x="84" y="226">Notes Memory</text>
-  <text class="n" x="84" y="276">22 248</text></g>
+  <text class="n" x="84" y="276">20 152</text></g>
 <g class="box"><rect x="60" y="306" width="400" height="104" rx="18"/>
   <text class="t" x="84" y="344">Règles et skills</text>
-  <text class="n" x="84" y="394">2 371</text></g>
+  <text class="n" x="84" y="394">10 028</text></g>
 <g class="box"><rect x="60" y="424" width="400" height="104" rx="18"/>
   <text class="t" x="84" y="462">Commits</text>
-  <text class="n" x="84" y="512">4 802</text></g>
+  <text class="n" x="84" y="512">4 808</text></g>
 <g class="box"><rect x="60" y="542" width="400" height="104" rx="18"/>
   <text class="t" x="84" y="580">Pull requests</text>
   <text class="n" x="84" y="630">29</text></g>
 <g class="box"><rect x="60" y="660" width="400" height="104" rx="18"/>
-  <text class="t" x="84" y="698">Séances Claude et Codex</text>
-  <text class="n" x="84" y="748">2 685</text></g>
+  <text class="t" x="84" y="698">Séances des agents</text>
+  <text class="n" x="84" y="748">3 068</text></g>
 <g class="box"><rect x="60" y="778" width="400" height="104" rx="18"/>
   <text class="t" x="84" y="816">Notes du jour du site</text>
   <text class="n" x="84" y="866">68</text></g>
 <g class="box"><rect x="60" y="896" width="400" height="104" rx="18"/>
   <text class="t" x="84" y="934">Documents</text>
-  <text class="n" x="84" y="984">83</text></g>
+  <text class="n" x="84" y="984">85</text></g>
   <path class="a " d="M460 122 C 530 122, 530 540, 600 540" marker-end="url(#m1)"/>
 <path class="a " d="M460 240 C 530 240, 530 540, 600 540" marker-end="url(#m1)"/>
 <path class="a " d="M460 358 C 530 358, 530 540, 600 540" marker-end="url(#m1)"/>
@@ -66,16 +66,16 @@ svg .bar { fill: var(--line); } svg .bar.hi { fill: var(--hi); }
 <path class="a " d="M460 948 C 530 948, 530 540, 600 540" marker-end="url(#m1)"/>
   <g class="box "><rect x="600" y="460" width="330" height="160" rx="18"/>
   <text class="t" x="624" y="500">Points datés</text>
-  <text class="n" x="624" y="552">36 132</text>
+  <text class="n" x="624" y="552">42 085</text>
   <text class="s" x="624" y="598">texte brut, date réelle</text></g>
   <path class="a " d="M930 540 C 970 540, 970 330, 1010 330" marker-end="url(#m1)"/><path class="a " d="M930 540 C 970 540, 970 700, 1010 700" marker-end="url(#m1)"/>
   <g class="box "><rect x="1010" y="250" width="330" height="160" rx="18"/>
   <text class="t" x="1034" y="290">Souvenirs</text>
-  <text class="n" x="1034" y="342">186 209</text>
-  <text class="s" x="1034" y="388">63 corrections reliées</text></g>
+  <text class="n" x="1034" y="342">215 978</text>
+  <text class="s" x="1034" y="388">74 corrections reliées</text></g>
   <g class="box "><rect x="1010" y="620" width="330" height="160" rx="18"/>
   <text class="t" x="1034" y="660">Vecteurs locaux</text>
-  <text class="n" x="1034" y="712">186 209</text>
+  <text class="n" x="1034" y="712">215 978</text>
   <text class="s" x="1034" y="758">e5, MRR 0,414</text></g>
   <path class="a " d="M1340 330 C 1380 330, 1380 520, 1420 520" marker-end="url(#m1)"/><path class="a " d="M1340 700 C 1380 700, 1380 560, 1420 560" marker-end="url(#m1)"/>
   <g class="box hi"><rect x="1420" y="440" width="440" height="200" rx="18"/>
@@ -86,7 +86,7 @@ svg .bar { fill: var(--line); } svg .bar.hi { fill: var(--hi); }
   <g class="box "><rect x="1420" y="160" width="440" height="170" rx="18"/>
   <text class="t" x="1444" y="200">Agents</text>
   <text class="n" x="1444" y="252">MCP</text>
-  <text class="s" x="1444" y="308">Claude Code et Codex</text></g>
+  <text class="s" x="1444" y="308">Claude Code, Codex, Antigravity</text></g>
   <g class="box "><rect x="1420" y="760" width="440" height="170" rx="18"/>
   <text class="t" x="1444" y="800">Onglet Past</text>
   <text class="n" x="1444" y="852">3D</text>

@@ -30,6 +30,12 @@ const PARAMS = {
     'bench/pages-heldout.json': "pages de rappel, questions tenues à l'écart",
     'bench/reader-input.json': 'entrée du lecteur',
     'reference/past-dev-llms-full-9-November-2026.txt': 'documentation publique de past.dev lue le 9 November 2026',
+    'AUDIT-recall-et-past-dev-9-November-2026.md': "audit indépendant du rappel et de la couverture de past.dev (9 November 2026)",
+    'reference/past-dev-site-9-November-2026.txt': 'site public de past.dev (tarifs, bancs), copié le 9 November 2026',
+    'reference/past-dev-glossary-9-November-2026.txt': 'glossaire de past.dev, copié le 9 November 2026',
+    'reference/past-dev-guides-9-November-2026.txt': 'guides de past.dev, copiés le 9 November 2026',
+    'reference/past-dev-blog-9-November-2026.txt': 'blog de past.dev, copié le 9 November 2026',
+    'reference/past-dev-index-9-November-2026.txt': "index llms.txt de past.dev, copié le 9 November 2026",
   },
   skillFiles: {
     'SKILL.md': 'skill zenray-past : méthode, appels et index de chargement à la demande',

@@ -13,7 +13,11 @@
   {
    "at": "2026-11-09T15:10:46.292Z",
    "summary": "Synthèse mise à jour : huit sources dont la doctrine (règles et skills) et les documents, notes du jour connues en une minute avec leur heure d'écriture ; vue Notes de ZenRayProgress en Adobe Clean avec horodatage."
+  },
+  {
+   "at": "2026-11-09T15:49:23.865Z",
+   "summary": "Fin de ZenRay Past : Antigravity et références des skills ingérées, état du service visible et relance automatique, archives Knowledge écartées, documentation publique de past.dev copiée, audit indépendant ; pas d'API cloud sur décision de Matthieu."
   }
  ],
- "sourceDigest": "9ef1b35418ff64c69f2a278779b1d355132849a2e394ff936922604d73a75f95"
+ "sourceDigest": "a00b3e3db08acbd57f67ef85d870920f78e7dcbce6c9dbafde91765000b69e3b"
 }
