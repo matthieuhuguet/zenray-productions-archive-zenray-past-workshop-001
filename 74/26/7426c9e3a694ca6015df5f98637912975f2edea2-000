@@ -2,6 +2,10 @@
 
 ZenRay Past est la mémoire temporelle de l'écosystème ZenRay. Il reprend les principes publics de past.dev (documentation lue le 9 November 2026, copie de travail dans `reference/`), mais il tourne en local, sans API payante, et il absorbe le skill `progress`. Son but est de supprimer l'amnésie entre les sessions des agents (Claude Code, Codex, Gemini, Antigravity) : rendre, sous un budget strict de tokens, les seules preuves datées qui répondent à une question.
 
+## 0. Le problème que ZenRay Past résout
+
+Chaque session d'agent commence amnésique : elle ne sait ni ce qui a été décidé hier, ni quelle valeur a remplacé laquelle, ni où le travail s'est arrêté. Jusqu'ici, la reprise reposait sur des fichiers Markdown écrits à la main (PROGRESS.md, les `*1.md`, FEEDBACK.md), qui grossissent sans fin, mélangent l'actuel et le périmé, et obligent l'agent à fouiller par grep des milliers de lignes, ce qui coûte cher en tokens et dilue son attention. Le banc du 8 November 2026 l'a mesuré : Claude Code seul répond juste à 12 questions sur 13, mais il lui faut environ 23 000 tokens par question. ZenRay Past résout ce problème d'amnésie entre les sessions : il garde le passé brut et daté, il sait quelle version d'un fait est actuelle, et il rend les seules preuves utiles sous un budget fixe, pour tous les agents (Claude Code, Codex, Gemini, Antigravity). Le passé de ZenRay est aussi son progrès : la chronologie que montre l'onglet Past est la même mémoire que celle que lisent les agents.
+
 ## 1. Les cinq objets
 
 | Objet | Définition | Clé |

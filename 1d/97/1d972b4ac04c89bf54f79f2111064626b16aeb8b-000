@@ -23,8 +23,10 @@ Règle de travail : une feuille à la fois, dans l'ordre, chacune prouvée avant
 | 15 | Onglet Progress renommé Past, Adobe Clean | capture du site local | à faire |
 | 16 | Chronologie 3D interactive (cartes cliquables, axe du temps, chaînes de versions, repère maintenant, flux ingéré) | captures et clic vérifiés dans le navigateur intégré | à faire |
 | 17 | Déploiement de ZenRayProgress depuis `origin/main` | HTTP 200 et données relues en production, revérifiées 10 minutes plus tard | à faire |
-| 18 | Bascule : CLAUDE.md pointe vers ZenRay Past ; PROGRESS.md marqué deprecated avec la date | seulement si 10 est vert ; `extract-rules.mjs --verify` vert | bloqué par 10 |
+| 18 | Bascule : CLAUDE.md pointe vers ZenRay Past ; PROGRESS.md marqué deprecated avec la date (lecture directe dépréciée, écriture conservée en double) | seulement si 10 et 10b sont verts ; `extract-rules.mjs --verify` vert | bloqué par 10 |
 | 19 | Bascule : skills `progress`, `zenray-resume-coordinator` et `zenray-*` reliés à ZenRay Past | grep des renvois, `sync-skill.sh` de chaque skill sans erreur | bloqué par 18 |
+| 10b | Banc tenu à l'écart : 12 nouvelles questions écrites AVANT tout réglage du rappel, jamais utilisées pour régler | au moins 11 sur 12, au plus 8 000 tokens par question | à faire |
+| 21 | Synthèse HTML du projet, IndexMapping et archive Assets | synthèse publiée et archive vérifiée dans le cloud Assets | à faire |
 | 20 | Tâche récurrente d'avancement | la tâche existe et une exécution fait avancer une feuille | bloqué : création refusée par le contrôle des permissions, texte prêt dans TASK-PROMPT.md |
 
 ## Décisions prises (9 November 2026)
@@ -32,6 +34,15 @@ Règle de travail : une feuille à la fois, dans l'ordre, chacune prouvée avant
 - Le moteur est un dépôt à part, pas un dossier de ZenRayProgress : ce dépôt est partagé par d'autres sessions et déployé en production, alors que la base contient des données privées.
 - Aucun appel payant : SQLite intégré à Node (`node:sqlite`), FTS5, vecteurs stockés en BLOB et cosinus en brute force (assez rapide sous 200 000 vecteurs).
 - Pas de hook qui injecte du texte à chaque prompt tant que le banc n'a pas prouvé son utilité : c'est exactement ce qui a rendu ZenRay Knowledge bruyant.
+
+## Premortem et corrections (9 November 2026, skill think-of-everything)
+
+- Double écriture : `progress.mjs append` continue d'écrire PROGRESS.md (43 fichiers le citent, ResumeBrief.mjs et le relais du journal sur 47831 le lisent) et alimente aussi ZenRay Past ; « deprecated » vise la lecture directe du fichier.
+- Déploiement ZenRayProgress depuis un worktree propre d'origin/main (le dépôt local avait 12 commits de retard et 43 fichiers modifiés par d'autres sessions), commit de mes seuls fichiers, revérification 10 minutes après.
+- Banc tenu à l'écart (feuille 10b) écrit avant tout réglage, contre le surapprentissage des 13 questions connues.
+- Commits : seulement les 1 518 vrais commits de Memory1 (21 475 « auto-sync » écartés) et les dépôts de code ; conversations par séance, prompts et réponses ; aucune injection à chaque prompt.
+- Données de la vue Past servies en local sur 127.0.0.1 ; aucune nouvelle donnée privée vers le cloud.
+- Accord de Matthieu le 9 November 2026 (« carte blanche pour créer la meilleure version possible ») retenu pour le téléchargement de l'étape 09, NLEmbedding d'Apple essayé d'abord.
 
 ## Questions pour Matthieu
 
