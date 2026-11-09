@@ -1,0 +1,85 @@
+#!/usr/bin/env node
+// 9 November 2026, 15:20 : rebuilds IndexMapping.json and appends a ProjectInfo.json revision for the Assets project zenray-past.
+// FR : reconstruit l'index mapping de l'atelier (fichiers, rôles, empreintes) et ajoute une révision datée à ProjectInfo.json.
+// Usage : node Scripts/BuildIndexMapping.mjs "<revision summary>"   |   node Scripts/BuildIndexMapping.mjs --check
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync, statSync, existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import path from 'node:path';
+
+// Parameters: every path and role lives here, nowhere else.
+const PARAMS = {
+  project: 'zenray-past',
+  workshop: '/Users/zenray/.claude/tmp/tmp-zenray-past',
+  engine: '/Users/zenray/Create/Build/Productions/GithubProductions/ZenRayPast',
+  viewRepo: '/Users/zenray/Create/Build/Productions/GithubProductions/ZenRayProgress',
+  viewPath: 'src/past',
+  skill: '/Users/zenray/.claude/skills/zenray-past',
+  workshopFiles: {
+    'PLAN.md': 'plan séquentiel (feuilles, preuves, états)',
+    'SPEC.md': 'spécification de ZenRay Past',
+    'TASK-PROMPT.md': 'texte de la tâche quotidienne à créer',
+    'Articles/index.html': 'synthèse HTML publiée',
+    'Articles/snapshot.json': 'relevé daté des chiffres de la synthèse',
+    'Scripts/BuildSynthesis.mjs': 'générateur et vérificateur de la synthèse',
+    'Scripts/BuildIndexMapping.mjs': 'générateur de cet index mapping',
+    'bench/heldout.json': "banc tenu à l'écart (12 questions)",
+    'bench/reader-answers.json': 'réponses du lecteur',
+    'bench/reader-score.json': 'scores du banc',
+    'bench/pages-known.json': 'pages de rappel, questions connues',
+    'bench/pages-heldout.json': "pages de rappel, questions tenues à l'écart",
+    'bench/reader-input.json': 'entrée du lecteur',
+    'reference/past-dev-llms-full-9-November-2026.txt': 'documentation publique de past.dev lue le 9 November 2026',
+  },
+  skillFiles: {
+    'SKILL.md': 'skill zenray-past : méthode, appels et index de chargement à la demande',
+    'references/ResumeCoordinator.md': 'ex-skill zenray-resume-coordinator, deprecated le 9 November 2026, texte intact',
+  },
+};
+
+const sha256 = (file) => createHash('sha256').update(readFileSync(file)).digest('hex');
+
+function describe(root, table) {
+  return Object.entries(table).map(([rel, role]) => {
+    const abs = path.join(root, rel);
+    if (!existsSync(abs)) throw new Error(`missing file in index mapping: ${abs}`);
+    return { path: rel, role, bytes: statSync(abs).size, sha256: sha256(abs) };
+  });
+}
+
+function viewCommit() {
+  // The local main checkout may lag; origin/main is the deployed truth.
+  return execFileSync('git', ['-C', PARAMS.viewRepo, 'log', '-1', '--format=%h', 'origin/main', '--', PARAMS.viewPath], { encoding: 'utf8' }).trim();
+}
+
+const files = describe(PARAMS.workshop, PARAMS.workshopFiles);
+const skillFiles = describe(PARAMS.skill, PARAMS.skillFiles);
+const digest = createHash('sha256')
+  .update([...files.map((f) => `w:${f.path}:${f.sha256}`), ...skillFiles.map((f) => `s:${f.path}:${f.sha256}`)].sort().join('\n'))
+  .digest('hex');
+
+if (process.argv[2] === '--check') {
+  const info = JSON.parse(readFileSync(path.join(PARAMS.workshop, 'ProjectInfo.json'), 'utf8'));
+  const ok = info.sourceDigest === digest;
+  console.log(ok ? 'index mapping up to date' : `stale: ${info.sourceDigest} != ${digest}`);
+  process.exit(ok ? 0 : 1);
+}
+
+const summary = process.argv[2];
+if (!summary) throw new Error('give a revision summary as first argument, or --check');
+const at = new Date().toISOString();
+const mapping = {
+  project: PARAMS.project,
+  generatedAt: at,
+  workshop: PARAMS.workshop,
+  repos: { engine: PARAMS.engine, view: `ZenRayProgress ${PARAMS.viewPath} (origin/main ${viewCommit()})`, skill: PARAMS.skill },
+  files,
+  skill: { root: PARAMS.skill, files: skillFiles },
+};
+writeFileSync(path.join(PARAMS.workshop, 'IndexMapping.json'), JSON.stringify(mapping, null, 1) + '\n');
+const infoPath = path.join(PARAMS.workshop, 'ProjectInfo.json');
+const info = JSON.parse(readFileSync(infoPath, 'utf8'));
+info.revisions.push({ at, summary }); // append only: earlier revisions stay untouched
+info.sourceDigest = digest;
+writeFileSync(infoPath, JSON.stringify(info, null, 1) + '\n');
+console.log(`IndexMapping.json: ${files.length} workshop files, ${skillFiles.length} skill files; digest ${digest.slice(0, 12)}`);

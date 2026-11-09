@@ -5,7 +5,11 @@
   {
    "at": "2026-11-09T13:51:19.578962+00:00",
    "summary": "ZenRay Past construit et basculé : sources datées (journal, Memory1, commits, PR, séances, notes du jour), souvenirs, vecteurs e5 locaux, rappel hybride sous budget, MCP zenray-past, service com.zenray.past, onglet Past 3D déployé ; banc 25 sur 25 au lecteur, environ 6 000 tokens par question."
+  },
+  {
+   "at": "2026-11-09T14:07:52.212Z",
+   "summary": "Skill zenray-past créé (méthode, appels, index de chargement à la demande) ; zenray-resume-coordinator deprecated et déplacé dans ses references ; IndexMapping.json couvre désormais les fichiers du skill."
   }
  ],
- "sourceDigest": "f0b1bf4cb91d6a0b67edc5e02d660729d8afd319da7489135686ed00edc6d4e9"
+ "sourceDigest": "ee4c6d193d9e1bbe1df3ca48b0281fc76d84491ded7baa310932383d29cbe6c7"
 }
