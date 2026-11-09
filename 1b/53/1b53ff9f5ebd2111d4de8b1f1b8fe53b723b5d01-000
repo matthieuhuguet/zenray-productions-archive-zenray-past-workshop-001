@@ -1,0 +1,89 @@
+{
+ "project": "zenray-past",
+ "generatedAt": "2026-11-09T13:51:19.578962+00:00",
+ "workshop": "/Users/zenray/.claude/tmp/tmp-zenray-past",
+ "repos": {
+  "engine": "/Users/zenray/Create/Build/Productions/GithubProductions/ZenRayPast",
+  "view": "ZenRayProgress src/past (origin/main 9b9cf175)"
+ },
+ "files": [
+  {
+   "path": "PLAN.md",
+   "role": "plan séquentiel (feuilles, preuves, états)",
+   "bytes": 11733,
+   "sha256": "3a89a8046444b178064f0db31b6243b0b44d5d6682be73f24a8c60547a65a600"
+  },
+  {
+   "path": "SPEC.md",
+   "role": "spécification de ZenRay Past",
+   "bytes": 6896,
+   "sha256": "695f12ac72762f8e0cb9a2deba3c57b41f0a37de6d8d516542633c867bbb3a78"
+  },
+  {
+   "path": "TASK-PROMPT.md",
+   "role": "texte de la tâche quotidienne à créer",
+   "bytes": 2465,
+   "sha256": "c266fc0e4e81242f48613b7e7ad0eb40bb453fe13f83fb82d6a89cae87275686"
+  },
+  {
+   "path": "Articles/index.html",
+   "role": "synthèse HTML publiée",
+   "bytes": 220977,
+   "sha256": "9e325a099d5f9fa7abcb5213b48466584738f58aa8ffe4831b4c5fc4d7947cce"
+  },
+  {
+   "path": "Articles/snapshot.json",
+   "role": "relevé daté des chiffres de la synthèse",
+   "bytes": 243,
+   "sha256": "8551e73a2a629b0487db56652c63d63c2cc385fa5176f8e5b941a7c51901afee"
+  },
+  {
+   "path": "Scripts/BuildSynthesis.mjs",
+   "role": "générateur et vérificateur de la synthèse",
+   "bytes": 10779,
+   "sha256": "6514d9e02906d41162aadcbdfe93b93561d286f806b07aac22e3c84b03fea30a"
+  },
+  {
+   "path": "bench/heldout.json",
+   "role": "banc tenu à l'écart (12 questions)",
+   "bytes": 7174,
+   "sha256": "f7a1c4ed6a42b0d4666ec8408ffeb3ca0901adf613967677cc9b0567ca1cd811"
+  },
+  {
+   "path": "bench/reader-answers.json",
+   "role": "réponses du lecteur",
+   "bytes": 8926,
+   "sha256": "4e32d09843cb598827f0501a0a93d2b2c68cf00f6abcf604256a95717fed5c42"
+  },
+  {
+   "path": "bench/reader-score.json",
+   "role": "scores du banc",
+   "bytes": 686,
+   "sha256": "ed18836891060d9487138fd66678fe02cb86042fc2e8ac49eff80e72bb63069b"
+  },
+  {
+   "path": "bench/pages-known.json",
+   "role": "pages de rappel, questions connues",
+   "bytes": 430545,
+   "sha256": "0d01e492affe1eb2af590c971e9ea14edeaf3abbb75240a62a3301b32d6f39f4"
+  },
+  {
+   "path": "bench/pages-heldout.json",
+   "role": "pages de rappel, questions tenues à l'écart",
+   "bytes": 373716,
+   "sha256": "e39395e785d4eae55c32a2b31bb3e3c0cf7268bb4a7c380b1eafe825131624be"
+  },
+  {
+   "path": "bench/reader-input.json",
+   "role": "entrée du lecteur",
+   "bytes": 804646,
+   "sha256": "063882af12ad6e2db8132dadb0c97d5680e28df7fa1959015bd3a92ef1fd4b18"
+  },
+  {
+   "path": "reference/past-dev-llms-full-9-November-2026.txt",
+   "role": "documentation publique de past.dev lue le 9 November 2026",
+   "bytes": 207538,
+   "sha256": "093fc6266b1ee8d5751f63754ff48a9a589fa7a68f49f683f887a672a88803cf"
+  }
+ ]
+}

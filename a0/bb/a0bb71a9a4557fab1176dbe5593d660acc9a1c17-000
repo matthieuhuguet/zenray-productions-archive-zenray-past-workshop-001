@@ -1,0 +1,147 @@
+#!/usr/bin/env node
+// ZenRay Past synthesis (ProjectSynthesis contract of 4 November 2026): a clean title, three short paragraphs, two
+// 1920x1080 schemas, nothing else. Every number comes from a dated snapshot of the base and from the bench files, and
+// `verify` re-reads the page and fails if one number differs. 9 November 2026, 21:10 Europe/Paris.
+// FR : synthèse de ZenRay Past ; chaque nombre vient d'un relevé daté ou des bancs, et `verify` le recontrôle.
+//   node Scripts/BuildSynthesis.mjs snapshot | build | verify [file]
+import { readFileSync, writeFileSync, existsSync } from 'node:fs'
+import path from 'node:path'
+
+const W = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..')
+const REPO = '/Users/zenray/Create/Build/Productions/GithubProductions/ZenRayPast'
+const FONTS = '/Users/zenray/.claude/skills/zenray-edit/designs/_shared/fonts'
+const OUT = path.join(W, 'Articles/index.html')
+const SNAP = path.join(W, 'Articles/snapshot.json')
+const fr = (n) => Number(n).toLocaleString('fr-FR').replace(/ /g, ' ')
+const dec = (n, d = 3) => Number(n).toFixed(d).replace('.', ',')
+
+async function snapshot() {
+  const { openDb } = await import(path.join(REPO, 'src/db.mjs'))
+  const db = openDb()
+  const by = Object.fromEntries(db.prepare('SELECT source, COUNT(*) n FROM data_points GROUP BY source').all().map((r) => [r.source, r.n]))
+  const s = {
+    takenAt: new Date().toISOString(), sources: by,
+    points: db.prepare('SELECT COUNT(*) n FROM data_points').get().n,
+    memories: db.prepare('SELECT COUNT(*) n FROM memories').get().n,
+    vectors: db.prepare('SELECT COUNT(*) n FROM embeddings').get().n,
+    supersedes: db.prepare("SELECT COUNT(*) n FROM links WHERE rel = 'supersedes'").get().n,
+  }
+  writeFileSync(SNAP, JSON.stringify(s, null, 1))
+  return s
+}
+
+function numbers() {
+  const s = JSON.parse(readFileSync(SNAP, 'utf8'))
+  const reader = JSON.parse(readFileSync(path.join(REPO, 'bench/reader-score-9-November-2026.json'), 'utf8'))
+  const vec = JSON.parse(readFileSync(path.join(REPO, 'bench/vectors-9-November-2026.json'), 'utf8')).results
+  return { s, reader, vec }
+}
+
+const font = (file) => `url(data:font/woff2;base64,${readFileSync(path.join(FONTS, file)).toString('base64')}) format('woff2')`
+
+function box(x, y, w, h, title, value, sub, cls = '') {
+  return `<g class="box ${cls}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18"/>
+  <text class="t" x="${x + 24}" y="${y + 40}">${title}</text>
+  ${value ? `<text class="n" x="${x + 24}" y="${y + 92}">${value}</text>` : ''}
+  ${sub ? `<text class="s" x="${x + 24}" y="${y + h - 22}">${sub}</text>` : ''}</g>`
+}
+const arrow = (x1, y1, x2, y2, cls = '') => `<path class="a ${cls}" d="M${x1} ${y1} C ${(x1 + x2) / 2} ${y1}, ${(x1 + x2) / 2} ${y2}, ${x2} ${y2}" marker-end="url(#m${cls ? '2' : '1'})"/>`
+
+function chain({ s, vec }) {
+  const src = [['Journal', s.sources.progress], ['Notes Memory', s.sources.memory], ['Commits', s.sources.git], ['Pull requests', s.sources.pr],
+    ['Séances Claude et Codex', s.sources.conversations], ['Notes du jour du site', s.sources.notes]]
+  const left = src.map(([t, n], i) => box(60, 70 + i * 160, 400, 130, t, fr(n), '')).join('\n')
+  const arrowsIn = src.map((_, i) => arrow(460, 135 + i * 160, 600, 540)).join('\n')
+  const e5 = vec.find((v) => v.kept), ctx = vec.filter((v) => !v.kept)
+  return `<svg viewBox="0 0 1920 1080" width="1920" height="1080" role="img" aria-label="Chaîne de valeur de ZenRay Past">
+  <defs><marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="mk"/></marker>
+  <marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" class="mk2"/></marker></defs>
+  ${left}
+  ${arrowsIn}
+  ${box(600, 460, 330, 160, 'Points datés', fr(s.points), 'texte brut, date réelle')}
+  ${arrow(930, 540, 1010, 330)}${arrow(930, 540, 1010, 700)}
+  ${box(1010, 250, 330, 160, 'Souvenirs', fr(s.memories), `${fr(s.supersedes)} corrections reliées`)}
+  ${box(1010, 620, 330, 160, 'Vecteurs locaux', fr(s.vectors), `e5, MRR ${dec(e5.mrr)}`)}
+  ${arrow(1340, 330, 1420, 520)}${arrow(1340, 700, 1420, 560)}
+  ${box(1420, 440, 440, 200, 'Rappel sous budget', '≤ 6 000', 'tokens : mots, sens et temps', 'hi')}
+  ${arrow(1640, 440, 1640, 330)}${arrow(1640, 640, 1640, 760)}
+  ${box(1420, 160, 440, 170, 'Agents', 'MCP', 'Claude Code et Codex')}
+  ${box(1420, 760, 440, 170, 'Onglet Past', '3D', 'ZenRayProgress')}
+  ${box(600, 860, 330, 150, 'Apple contextuel', `MRR ${dec(ctx[0].mrr)}`, 'écarté', 'off')}
+  ${box(1010, 860, 330, 150, 'Apple phrases', `MRR ${dec(ctx[1].mrr)}`, 'écarté', 'off')}
+  ${box(600, 70, 330, 150, 'ZenRay Knowledge', '—', 'abandonné', 'off')}
+  </svg>`
+}
+
+function bench({ reader }) {
+  const max = reader.baseline.tokensPerQuestion
+  const bar = (y, label, v, cls) => `<text class="t" x="80" y="${y - 18}">${label}</text>
+  <rect class="bar ${cls}" x="80" y="${y}" width="${Math.round(1100 * v / max)}" height="70" rx="12"/>
+  <text class="n" x="${100 + Math.round(1100 * v / max)}" y="${y + 56}">${fr(v)}</text>`
+  return `<svg viewBox="0 0 1920 1080" width="1920" height="1080" role="img" aria-label="Banc du 9 novembre 2026">
+  <text class="h" x="80" y="120">Tokens lus par question</text>
+  ${bar(220, 'Claude Code seul, recherche par grep', reader.baseline.tokensPerQuestion, '')}
+  ${bar(400, 'ZenRay Past, preuves sous budget', reader.meanTokensPerQuestion, 'hi')}
+  <text class="h" x="80" y="640">Réponses justes</text>
+  ${box(80, 690, 520, 300, 'Claude Code seul', `${reader.baseline.correct} / ${reader.baseline.of}`, 'questions connues', '')}
+  ${box(680, 690, 520, 300, 'ZenRay Past', `${reader.known.correct} / ${reader.known.of}`, 'questions connues', 'hi')}
+  ${box(1280, 690, 560, 300, 'ZenRay Past', `${reader.heldout.correct} / ${reader.heldout.of}`, 'questions tenues à l’écart', 'hi')}
+  </svg>`
+}
+
+function html(n) {
+  const { s, reader } = n
+  const num = (v) => `<span class="num">${v}</span>`
+  const total = reader.known.correct + reader.heldout.correct, of = reader.known.of + reader.heldout.of
+  return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZenRay Past</title>
+<style>
+@font-face { font-family: 'GT Ultra'; src: ${font('GT-Ultra-Regular.woff2')}; font-weight: 100 900; }
+@font-face { font-family: 'Literata'; src: ${font('Literata-latin.woff2')}; font-weight: 100 900; }
+:root { --bg: #fafaf8; --ink: #262a27; --muted: #6a726c; --line: #c9cbc4; --card: #ffffff; --hi: #d97757; }
+@media (prefers-color-scheme: dark) { :root { --bg: #161716; --ink: #ecebe6; --muted: #9a9f98; --line: #3a3d39; --card: #1f201f; } }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font-synthesis: none; -webkit-font-smoothing: antialiased; }
+main { max-width: 1040px; margin: 0 auto; padding: 72px 16px 96px; }
+h1 { font: 400 56px/1.1 'GT Ultra', sans-serif; margin: 0 0 28px; letter-spacing: -0.01em; }
+p { font: 400 19px/1.65 'Literata', Georgia, serif; margin: 0 0 18px; }
+.num { font-family: 'GT Ultra', sans-serif; }
+figure { margin: 40px 0 0; }
+svg { width: 100%; height: auto; display: block; border-radius: 18px; background: var(--card); box-shadow: 0 0 0 1px var(--line); }
+svg .box rect { fill: var(--bg); stroke: var(--line); stroke-width: 2; }
+svg .box.hi rect { stroke: var(--hi); stroke-width: 3; }
+svg .box.off rect { stroke-dasharray: 10 8; opacity: .7; }
+svg .box.off text { fill: var(--muted); }
+svg .t { font: 400 26px 'GT Ultra', sans-serif; fill: var(--muted); }
+svg .n { font: 400 48px 'GT Ultra', sans-serif; fill: var(--ink); }
+svg .s { font: 400 22px 'Literata', serif; fill: var(--muted); }
+svg .h { font: 400 40px 'GT Ultra', sans-serif; fill: var(--ink); }
+svg .a { fill: none; stroke: var(--line); stroke-width: 3; }
+svg .mk { fill: var(--line); } svg .mk2 { fill: var(--line); }
+svg .bar { fill: var(--line); } svg .bar.hi { fill: var(--hi); }
+</style></head><body><main>
+<h1>ZenRay Past</h1>
+<p>ZenRay Past est la mémoire de l’écosystème ZenRay. Il sert à ce qu’aucune session d’agent, qu’il s’agisse de Claude Code ou de Codex, ne recommence sans savoir ce qui a été décidé, quelle valeur a remplacé laquelle et où le travail s’est arrêté, et à ce que les notes du jour puissent être interrogées comme une base de données du passé.</p>
+<p>Il recueille sur le Mac le passé brut et daté, soit ${num(fr(s.points))} points tirés du journal, des notes de Memory, des commits, des conversations et des notes du jour du site, et il en tire ${num(fr(s.memories))} souvenirs courts reliés à leur source. Un modèle de vecteurs local et un graphe du temps distinguent la valeur actuelle de ses versions dépassées, si bien qu’une question ne reçoit que les preuves utiles, sous un budget fixe de tokens.</p>
+<p>Le banc du ${num('9 novembre 2026')} l’a mesuré : un lecteur qui ne voyait que ces preuves a répondu juste à ${num(`${total} questions sur ${of}`)}, dont ${num(reader.heldout.of)} écrites à l’écart du réglage, avec environ ${num(fr(reader.meanTokensPerQuestion))} tokens par question, contre environ ${num(fr(reader.baseline.tokensPerQuestion))} pour une recherche par grep. Les agents y accèdent par un serveur MCP, et l’onglet Past de ZenRayProgress en montre la chronologie en 3D.</p>
+<figure>${chain(n)}</figure>
+<figure>${bench(n)}</figure>
+</main></body></html>`
+}
+
+// Every number the page shows must equal the snapshot or the bench files. / FR : chaque nombre affiché est recontrôlé.
+function verify(file = OUT) {
+  const page = readFileSync(file, 'utf8')
+  const { s, reader, vec } = numbers()
+  const must = [fr(s.points), fr(s.memories), fr(s.vectors), fr(s.supersedes), ...Object.values(s.sources).map(fr),
+    fr(reader.meanTokensPerQuestion), fr(reader.baseline.tokensPerQuestion), `${reader.heldout.correct} / ${reader.heldout.of}`,
+    `${reader.known.correct} / ${reader.known.of}`, `${reader.baseline.correct} / ${reader.baseline.of}`, ...vec.map((v) => `MRR ${dec(v.mrr)}`)]
+  const missing = must.filter((m) => !page.includes(m))
+  if (missing.length) { console.error('verify FAILED, missing:', missing); process.exit(1) }
+  console.log(`verify ok: ${must.length} numbers found in ${path.basename(file)}`)
+}
+
+const cmd = process.argv[2]
+if (cmd === 'snapshot') console.log(JSON.stringify(await snapshot()))
+else if (cmd === 'build') { if (!existsSync(SNAP)) await snapshot(); writeFileSync(OUT, html(numbers())); console.log('wrote', OUT); process.exit(0) }
+else if (cmd === 'verify') verify(process.argv[3])
+else { console.error('usage: snapshot | build | verify [file]'); process.exit(2) }

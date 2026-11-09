@@ -1,0 +1,8 @@
+{
+  "date": "9 November 2026",
+  "method": "reader agent answering from ZenRay Past recall pages only (budget 6000 tokens), scored by hand against expected answers",
+  "known": { "correct": 13, "of": 13, "note": "pages contained FEEDBACK and conversation excerpts that repeat the 8 November bench; the reader says it did not use them" },
+  "heldout": { "correct": 12, "of": 12, "note": "written by a separate agent before tuning, never seen by the tuner until scoring; traps h09 and h10 answered INTROUVABLE" },
+  "meanTokensPerQuestion": 5980,
+  "baseline": { "method": "Claude Code alone with grep on Memory1, 8 November 2026", "correct": 12, "of": 13, "tokensPerQuestion": 23337 }
+}

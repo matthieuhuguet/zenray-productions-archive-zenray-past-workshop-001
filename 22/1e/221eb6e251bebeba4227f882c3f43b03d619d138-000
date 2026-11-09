@@ -1,0 +1,15 @@
+{
+ "takenAt": "2026-11-09T13:39:03.876Z",
+ "sources": {
+  "conversations": 2670,
+  "git": 4794,
+  "memory": 22187,
+  "notes": 67,
+  "pr": 29,
+  "progress": 3836
+ },
+ "points": 33583,
+ "memories": 176828,
+ "vectors": 176828,
+ "supersedes": 60
+}
